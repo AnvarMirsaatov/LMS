@@ -497,7 +497,7 @@
   "Deleted base book": "Основная книга удалена",
   "Created book copy": "Создана копия книги",
   "Updated book copy": "Обновленная копия книги",
-  "PDF upload failed! Please try again.": "Не удалось загрузить PDF! Пожалуйста, попробуйте еще раз.",
+  "pdfUploadFailed": "Не удалось загрузить PDF! Пожалуйста, попробуйте еще раз.",
   "Image upload failed! Please try again": "Не удалось загрузить изображение! Пожалуйста, попробуйте еще раз.",
   "Yearly Booking Statistics": "Годовая статистика бронирований",
   "usageCount": "Количество использований",
@@ -524,7 +524,7 @@
   "Author and title search": "Поиск по автору и названию",
   "Activation code sent automatically to email": "Код активации автоматически отправлен на электронную почту.",
   "Time remaining": "Оставшееся время",
-  "Verifying...": "Проверка...",
-  "Sending...": "Отправка...",
+  "verifying": "Проверка...",
+  "sending": "Отправка...",
   "Resend Code": "Повторно отправить код"
 }

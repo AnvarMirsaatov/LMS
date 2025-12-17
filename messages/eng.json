@@ -497,7 +497,7 @@
   "Deleted base book": "Deleted base book",
   "Created book copy": "Created book copy",
   "Updated book copy": "Updated book copy",
-  "PDF upload failed! Please try again.": "PDF upload failed! Please try again.",
+  "pdfUploadFailed": "pdfUploadFailed",
   "Image upload failed! Please try again": "Image upload failed! Please try again.",
   "Yearly Booking Statistics": "Yearly Booking Statistics",
   "usageCount": "Usage Count",
@@ -524,7 +524,7 @@
   "Author and title search": "Author and title search",
   "Activation code sent automatically to email": "Activation code sent automatically to email.",
   "Time remaining": "Time remaining",
-  "Verifying...": "Verifying...",
-  "Sending...": "Sending...",
+  "verifying": "verifying",
+  "sending": "sending",
   "Resend Code": "Resend Code"
 }

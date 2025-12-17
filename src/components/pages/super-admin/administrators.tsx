@@ -402,7 +402,7 @@ const Administrators = () => {
                       onError: (err: any) => {
                         toast.error(
                           err?.response?.data?.message ||
-                            t("Activation failed"),
+                          t("Activation failed"),
                         );
                       },
                     });
@@ -454,7 +454,7 @@ const Administrators = () => {
                         disabled={resendCode.isPending}
                       >
                         {resendCode.isPending
-                          ? t("Sending...")
+                          ? t("sending")
                           : t("Resend Code")}
                       </Button>
                     )}
@@ -466,7 +466,7 @@ const Administrators = () => {
                     disabled={activate.isPending} // vaqt tugamagan bo‘lsa disabled
                   >
                     {activate.isPending
-                      ? t("Verifying...")
+                      ? t("verifying")
                       : t("Faollashtirish")}
                   </Button>
                 </form>
