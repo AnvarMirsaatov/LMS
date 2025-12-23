@@ -1,14 +1,11 @@
-// src/hooks/useNotificationSocket.ts
 import { useEffect, useRef } from "react";
 
-export const useNotificationSocket = (
-  onNewNotification: (data: any) => void,
-) => {
+export const useNotificationSocket = (onNewNotification: (data: any) => void) => {
   const socketRef = useRef<WebSocket | null>(null);
 
-  useEffect(() => {
+  const connect = () => {
     const wsUrl =
-      process.env.NEXT_PUBLIC_BACKEND_URL?.replace(/^http/, "ws") +
+      (process.env.NEXT_PUBLIC_BACKEND_URL?.replace(/^http/, "ws") ?? "") +
       "/ws-notification";
 
     console.log("🔗 Connecting to WebSocket:", wsUrl);
@@ -16,9 +13,7 @@ export const useNotificationSocket = (
     const socket = new WebSocket(wsUrl);
     socketRef.current = socket;
 
-    socket.onopen = () => {
-      console.log("✅ WebSocket connected");
-    };
+    socket.onopen = () => console.log("✅ WebSocket connected");
 
     socket.onmessage = (event) => {
       try {
@@ -30,21 +25,18 @@ export const useNotificationSocket = (
       }
     };
 
-    socket.onerror = (error) => {
-      console.error("⚠️ WebSocket error:", error);
-    };
+    socket.onerror = (error) => console.error("⚠️ WebSocket error:", error);
 
     socket.onclose = (e) => {
       console.warn("🔌 WebSocket closed:", e.reason);
-      // avtomatik qayta ulanadi
-      setTimeout(() => {
-        console.log("♻️ Reconnecting WebSocket...");
-        useNotificationSocket(onNewNotification);
-      }, 5000);
+      setTimeout(connect, 5000); // ✅ hook ichida chaqirilmaydi, oddiy funksiya chaqiriladi
     };
+  };
 
+  useEffect(() => {
+    connect();
     return () => {
-      socket.close();
+      socketRef.current?.close();
     };
   }, [onNewNotification]);
 };

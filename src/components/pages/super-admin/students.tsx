@@ -32,7 +32,6 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import useLayoutStore from "@/store/layout-store";
-import { useQuery } from "@tanstack/react-query";
 import {
   ArrowDownWideNarrow,
   ArrowUpWideNarrow,
@@ -58,6 +57,8 @@ import { useForm } from "react-hook-form";
 import ReactPaginate from "react-paginate";
 import { toast } from "sonner";
 import { RiFileExcel2Line } from "react-icons/ri";
+
+import { useQuery } from "@tanstack/react-query";
 
 export type FilterType = "all" | "active" | "inactive";
 
@@ -102,7 +103,9 @@ const Students = () => {
       : searchValue
         ? { field: searchField, query: searchValue }
         : {}),
+
   });
+  console.log('Students=>', Students);
 
   useEffect(() => {
     setPageNumber(1);
@@ -140,6 +143,7 @@ const Students = () => {
       console.error("Yuklab olishda xatolik:", err);
     }
   };
+
 
   const importStudents = useImportStudents();
   const [importResult, setImportResult] = useState<{
@@ -300,6 +304,7 @@ const Students = () => {
         width: 200,
         title: t("actions"),
         render: (_: any, record: any) => (
+          // harakatlar
           <div className="flex gap-2">
             <TooltipBtn
               variant={"ampersand"}
@@ -543,24 +548,24 @@ const Students = () => {
         {
           onSuccess: () => {
             (toast.success(t("Student created successfully")),
-              {
-                style: {
-                  maxWidth: "600px",
-                  width: "100%",
-                },
-              });
+            {
+              style: {
+                maxWidth: "600px",
+                width: "100%",
+              },
+            });
             setOpen(false);
             form.reset();
           },
           onError: (err) => {
             console.error("❌ Create error:", err);
             (toast.error(t("Error creating student")),
-              {
-                style: {
-                  maxWidth: "600px",
-                  width: "100%",
-                },
-              });
+            {
+              style: {
+                maxWidth: "600px",
+                width: "100%",
+              },
+            });
           },
         },
       );
@@ -955,9 +960,9 @@ const Students = () => {
               fields={
                 editingStudent
                   ? fields.filter(
-                      (f) =>
-                        !["passportSeries", "passportNumber"].includes(f.name),
-                    )
+                    (f) =>
+                      !["passportSeries", "passportNumber"].includes(f.name),
+                  )
                   : fields
               }
               loading={isSubmitting}
