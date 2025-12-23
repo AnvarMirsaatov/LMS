@@ -253,17 +253,16 @@ const OptimizedSidebar: React.FC<OptimizedSidebarProps> = ({
           },
         ],
       },
-      // {
-      //   title: t("Notifications"),
-      //   icon: <Bell className="w-5 h-5" />,
-      //   href: `/${user?.role?.toLowerCase().replace("_", "-")}/notifications`,
-      //   badge: notifications > 0 ? notifications : undefined,
-      //   activePatterns: [
-      //     `/${user?.role?.toLowerCase().replace("_", "-")}/notifications`,
-      //     `/${user?.role?.toLowerCase().replace("_", "-")}/notifications/*`,
-      //   ],
-      //   role: ["ADMIN", "SUPER_ADMIN"],
-      // },
+      {
+        title: "Jarimalar",
+        icon: <CircleUser className="w-5 h-5" />,
+        href: `/${user?.role?.toLowerCase().replace("_", "-")}/penalties`,
+        activePatterns: [
+          `/${user?.role?.toLowerCase().replace("_", "-")}/penalties`,
+          `/${user?.role?.toLowerCase().replace("_", "-")}/penalties/*`,
+        ],
+        role: ["ADMIN", "SUPER_ADMIN"],
+      },
       {
         title: t("Profile"),
         icon: <CircleUser className="w-5 h-5" />,
@@ -274,6 +273,7 @@ const OptimizedSidebar: React.FC<OptimizedSidebarProps> = ({
         ],
         role: ["ADMIN", "SUPER_ADMIN"],
       },
+
     ],
     [t, user?.role, notifications]
   );
@@ -305,8 +305,8 @@ const OptimizedSidebar: React.FC<OptimizedSidebarProps> = ({
         isActive && "bg-green-600 text-white hover:bg-green-800",
         // Parent archived state (subtle background when child is archived)
         isParent &&
-          !isActive &&
-          "bg-green-600 text-white hover:bg-green-600/20 hover:text-green-600"
+        !isActive &&
+        "bg-green-600 text-white hover:bg-green-600/20 hover:text-green-600"
       );
     };
 
@@ -428,7 +428,7 @@ const OptimizedSidebar: React.FC<OptimizedSidebarProps> = ({
                         "flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group relative",
                         "text-muted-foreground hover:bg-green-600/50 hover:text-white",
                         isActive(child) &&
-                          "bg-green-400 text-white hover:bg-green-700"
+                        "bg-green-400 text-white hover:bg-green-700"
                       )}
                     >
                       <span className="w-1.5 h-1.5 bg-current rounded-full flex-shrink-0" />

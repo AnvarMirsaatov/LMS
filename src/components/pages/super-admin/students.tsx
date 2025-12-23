@@ -59,6 +59,7 @@ import { toast } from "sonner";
 import { RiFileExcel2Line } from "react-icons/ri";
 
 import { useQuery } from "@tanstack/react-query";
+import { useActivePenaltyRate } from "@/hooks/useActivePenaltyRate";
 
 export type FilterType = "all" | "active" | "inactive";
 
@@ -105,7 +106,7 @@ const Students = () => {
         : {}),
 
   });
-  console.log('Students=>', Students);
+
 
   useEffect(() => {
     setPageNumber(1);
@@ -119,6 +120,7 @@ const Students = () => {
   const deleteStudent = useDeleteStudents();
   const expertToExcel = useExcelExport();
   const exportToExcelShablon = useExcelExportShablon();
+  const { data: activeRate, isLoading: rateLoading } = useActivePenaltyRate();
 
   const isSubmitting = createStudent.isPending || updating.isPending;
 
@@ -143,7 +145,6 @@ const Students = () => {
       console.error("Yuklab olishda xatolik:", err);
     }
   };
-
 
   const importStudents = useImportStudents();
   const [importResult, setImportResult] = useState<{
@@ -360,6 +361,19 @@ const Students = () => {
                   >
                     {t("Archive bronlar")}
                   </DropdownMenuItem>
+                  {role === "super-admin" && activeRate?.count > 0 && (
+                    <DropdownMenuItem
+                      onClick={() => {
+                        const fullNameQuery = `${record.name}~${record.surname}`;
+                        router.push(
+                          `/super-admin/penalties?field=fullName&query=${encodeURIComponent(fullNameQuery)}`
+                        );
+                      }}
+                    >
+                      Jarimalar
+                    </DropdownMenuItem>
+                  )}
+
                 </DropdownMenuContent>
               </DropdownMenu>
             )}

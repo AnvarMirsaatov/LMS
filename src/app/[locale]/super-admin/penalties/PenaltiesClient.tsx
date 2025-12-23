@@ -1,14 +1,25 @@
 "use client";
-import { useState } from "react";
+
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Tag } from "lucide-react";
+import { GraduationCap, Tag, User } from "lucide-react";
 import { useActivePenaltyRate } from "@/hooks/useActivePenaltyRate";
 import { useFines } from "@/hooks/useFines";
 import { ActionColumns } from "@/components/pages/super-admin/penaltiesActionBtn";
 import { SearchFilter } from "@/components/pages/super-admin/penaltySearchFilter";
 import { FilterType } from "@/components/pages/super-admin/students";
-
-export default function PenaltiesClient() {
+import { useSearchParams } from "next/navigation";
+import {
+    Sheet,
+    SheetContent,
+    SheetHeader,
+    SheetTitle,
+} from "@/components/ui/sheet";
+export default function PenaltiesClient({
+    slug,
+}: {
+    slug?: string;
+}) {
     const t = useTranslations();
 
     const [page, setPage] = useState(1);
@@ -19,30 +30,43 @@ export default function PenaltiesClient() {
     const [searchValue, setSearchValue] = useState("");
 
     const { data: activeRate, isLoading: rateLoading } = useActivePenaltyRate();
+
+    // Query string orqali kelgan slug
+    const searchParams = useSearchParams();
+    const querySlug = searchParams.get("query") || undefined;
+
     const { data: fines, isLoading: finesLoading } = useFines({
         status: filter,
         pageNumber: page,
         pageSize: 1000,
         sortDirection: "desc",
-        ...(searchField === "fullName"
-            ? {
-                field: firstQuery && !secondQuery
-                    ? "name"          // faqat ism bo'yicha
-                    : !firstQuery && secondQuery
-                        ? "surname"   // faqat familiya bo'yicha
-                        : "fullName",  // ism + familiya
-                query:
-                    firstQuery && secondQuery
-                        ? `${firstQuery}~${secondQuery}`  // ism + familiya
-                        : firstQuery
-                            ? firstQuery                 // faqat ism
-                            : secondQuery,               // faqat familiya
-            }
-            : searchField === "cardNumber" && searchValue
-                ? { field: "cardNumber", query: searchValue }
-                : {}),
+        ...(querySlug
+            ? { field: isNaN(Number(querySlug)) ? "fullName" : "id", query: querySlug }
+            : searchField === "fullName"
+                ? {
+                    field: firstQuery && secondQuery ? "fullName" : firstQuery ? "name" : "surname",
+                    query: firstQuery && secondQuery ? `${firstQuery}~${secondQuery}` : firstQuery || secondQuery,
+                }
+                : searchField === "cardNumber" && searchValue
+                    ? { field: "cardNumber", query: searchValue }
+                    : {}),
     });
 
+    useEffect(() => {
+        if (querySlug) {
+            if (querySlug.includes("~")) {
+                const [first, second] = querySlug.split("~");
+                setFirstQuery(first);
+                setSecondQuery(second);
+            } else {
+                setFirstQuery(querySlug);
+                setSecondQuery("");
+            }
+        } else {
+            setFirstQuery("");
+            setSecondQuery("");
+        }
+    }, [querySlug]);
 
     return (
         <div className="space-y-6 p-2 bg-white rounded-md">
@@ -67,7 +91,6 @@ export default function PenaltiesClient() {
                 setSearchValue={(val) => { setSearchValue(val); setPage(1); }}
             />
 
-
             {/* Fines Table */}
             <div className="overflow-x-auto">
                 <table className="w-full border border-gray-300">
@@ -89,49 +112,46 @@ export default function PenaltiesClient() {
                         {rateLoading || finesLoading ? (
                             Array(10).fill(0).map((_, i) => (
                                 <tr key={i} className="w-['100%'] gap-2">
-                                    {
-                                        Array(10).fill(0).map((_, i) => (
-                                            <td className=" mt-2 h-6 bg-gray-200 animate-pulse border p-2 text-center"></td>
-                                        ))
-                                    }
+                                    {Array(10).fill(0).map((_, j) => (
+                                        <td key={j} className="mt-2 h-6 bg-gray-200 animate-pulse border p-2 text-center"></td>
+                                    ))}
+                                </tr>
+                            ))
+                        ) : fines?.data?.length ? (
+                            fines.data.map((fine: any, index: number) => (
+                                <tr key={fine.id} className="hover:bg-gray-50">
+                                    <td className="border p-2 text-center">{(page - 1) * 10 + index + 1}</td>
+                                    <td className="border p-2">{fine.name} {fine.surname}</td>
+                                    <td className="border p-2 whitespace-pre-line">{fine.faculty}</td>
+                                    <td className="border p-2">
+                                        <div className="font-medium">{fine.bookTitle}</div>
+                                        <div className="text-sm text-gray-500">{fine.bookAuthor}</div>
+                                    </td>
+                                    <td className="border p-2 text-center">{fine.inventoryNumber}</td>
+                                    <td className="border p-2 text-center">
+                                        {fine.type === fine.type.LOST
+                                            ? "Yo‘qotilgan"
+                                            : fine.type === fine.type.DAMAGED
+                                                ? "Shikastlangan"
+                                                : "Kechiktirilgan"}
+                                    </td>
+                                    <td className="border p-2 text-center">{fine.amount}</td>
+                                    <td className="border p-2 text-center">
+                                        <Tag color={fine.resolved ? "green" : "red"}>
+                                            {fine.resolved ? "Yechilgan" : "Yechilmagan"}
+                                        </Tag>
+                                    </td>
+                                    <td className="border p-2 text-center">{fine.createdAt}</td>
+                                    <td className="border p-2 text-center">
+                                        <ActionColumns fine={fine} onSuccess={() => { }} />
+                                    </td>
                                 </tr>
                             ))
                         ) : (
-                            fines?.data?.length ? (
-                                fines.data.map((fine: any, index: number) => (
-                                    <tr key={fine.id} className="hover:bg-gray-50">
-                                        <td className="border p-2 text-center">{(page - 1) * 10 + index + 1}</td>
-                                        <td className="border p-2">{fine.name} {fine.surname}</td>
-                                        <td className="border p-2 whitespace-pre-line">{fine.faculty}</td>
-                                        <td className="border p-2">
-                                            <div className="font-medium">{fine.bookTitle}</div>
-                                            <div className="text-sm text-gray-500">{fine.bookAuthor}</div>
-                                        </td>
-                                        <td className="border p-2 text-center">{fine.inventoryNumber}</td>
-                                        <td className="border p-2 text-center">
-                                            {fine.type === fine.type.LOST
-                                                ? "Yo‘qotilgan"
-                                                : fine.type === fine.type.DAMAGED
-                                                    ? "Shikastlangan"
-                                                    : "Kechiktirilgan"}
-                                        </td>
-                                        <td className="border p-2 text-center">{fine.amount}</td>
-                                        <td className="border p-2 text-center">
-                                            <Tag color={fine.resolved ? "green" : "red"}>
-                                                {fine.resolved ? "Yechilgan" : "Yechilmagan"}
-                                            </Tag>
-                                        </td>
-                                        <td className="border p-2 text-center">{fine.createdAt}</td>
-                                        <td className="border p-2 text-center">
-                                            <ActionColumns fine={fine} onSuccess={() => { }} />
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td colSpan={10} className="p-4 text-center">Ma’lumot topilmadi</td>
-                                </tr>
-                            ))}
+                            <tr>
+                                <td colSpan={10} className="p-4 text-center">Ma’lumot topilmadi</td>
+                            </tr>
+                        )}
                     </tbody>
                 </table>
             </div>
@@ -154,6 +174,7 @@ export default function PenaltiesClient() {
                     Next
                 </button>
             </div>
+        
         </div>
     );
 }
