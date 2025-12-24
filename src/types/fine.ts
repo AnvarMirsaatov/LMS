@@ -25,6 +25,8 @@ export interface Fine {
     createdAt?: string;
 }
 
+
+
 export interface FinesResponse {
     data: Fine[];
     totalPages: number;
@@ -36,4 +38,18 @@ export interface CreatePenaltyData {
     type: "lost" | "irreparable_damage" | "damage";
     fineId?: number; // agar kerak bo‘lsa
     details: string;
+}
+export interface FinesParams {
+    status?: string;
+    pageNumber?: number;
+    pageSize?: number;
+    sortDirection?: "asc" | "desc";
+    field?: string;
+    query?: string;
+}
+export interface FinesResponse {
+    currentPage: number;
+    data: Fine[];
+    totalElements: number;
+    totalPages: number;
 }
