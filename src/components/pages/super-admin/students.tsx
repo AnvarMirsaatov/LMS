@@ -32,7 +32,6 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import useLayoutStore from "@/store/layout-store";
-import { useQuery } from "@tanstack/react-query";
 import {
   ArrowDownWideNarrow,
   ArrowUpWideNarrow,
@@ -58,6 +57,9 @@ import { useForm } from "react-hook-form";
 import ReactPaginate from "react-paginate";
 import { toast } from "sonner";
 import { RiFileExcel2Line } from "react-icons/ri";
+
+import { useQuery } from "@tanstack/react-query";
+import { useActivePenaltyRate } from "@/hooks/useActivePenaltyRate";
 
 export type FilterType = "all" | "active" | "inactive";
 
@@ -102,7 +104,9 @@ const Students = () => {
       : searchValue
         ? { field: searchField, query: searchValue }
         : {}),
+
   });
+
 
   useEffect(() => {
     setPageNumber(1);
@@ -116,6 +120,7 @@ const Students = () => {
   const deleteStudent = useDeleteStudents();
   const expertToExcel = useExcelExport();
   const exportToExcelShablon = useExcelExportShablon();
+  const { data: activeRate, isLoading: rateLoading } = useActivePenaltyRate();
 
   const isSubmitting = createStudent.isPending || updating.isPending;
 
@@ -300,6 +305,7 @@ const Students = () => {
         width: 200,
         title: t("actions"),
         render: (_: any, record: any) => (
+          // harakatlar
           <div className="flex gap-2">
             <TooltipBtn
               variant={"ampersand"}
@@ -336,25 +342,68 @@ const Students = () => {
                   </TooltipBtn>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
-                  <DropdownMenuItem
-                    onClick={() => {
-                      router.push(
-                        `/super-admin/users/students/${record.id}?type=active`,
-                      );
-                    }}
-                  >
-                    {t("Active bronlar")}
-                  </DropdownMenuItem>
+                  {record.hasBookings ? (
+                    <DropdownMenuItem
+                      onClick={() => {
+                        router.push(
+                          `/super-admin/users/students/${record.id}?type=active`,
+                        );
+                      }}
+                    >
+                      {t("Active bronlar")}
+                    </DropdownMenuItem>
+                  )
+                    : (
+                      <DropdownMenuItem
+                        disabled
+                      >
+                        {t("Active bronlar")}
+                      </DropdownMenuItem>
+                    )}
 
-                  <DropdownMenuItem
-                    onClick={() => {
-                      router.push(
-                        `/super-admin/users/students/${record.id}?type=archive`,
-                      );
-                    }}
-                  >
-                    {t("Archive bronlar")}
-                  </DropdownMenuItem>
+                  {
+                    record.hasHistory ? (
+                      <DropdownMenuItem
+                        onClick={() => {
+                          router.push(
+                            `/super-admin/users/students/${record.id}?type=archive`,
+                          );
+                        }}
+                      >
+                        {t("Archive bronlar")}
+                      </DropdownMenuItem>
+                    )
+                      :
+                      (
+                        <DropdownMenuItem
+                          disabled
+                        >
+                          {t("Archive bronlar")}
+                        </DropdownMenuItem>
+                      )
+                  }
+
+                  {role === "admin" && record.hasFines ? (
+                    <DropdownMenuItem
+                      onClick={() => {
+                        const fullNameQuery = `${record.name}~${record.surname}`;
+                        router.push(
+                          `/super-admin/penalties?field=fullName&query=${encodeURIComponent(fullNameQuery)}`
+                        );
+                      }}
+                    >
+                      Jarimalar
+                    </DropdownMenuItem>
+                  )
+                    :
+                    (
+                      <DropdownMenuItem
+                        disabled>
+                        Jarimalar
+                      </DropdownMenuItem>
+                    )
+                  }
+
                 </DropdownMenuContent>
               </DropdownMenu>
             )}
@@ -543,24 +592,24 @@ const Students = () => {
         {
           onSuccess: () => {
             (toast.success(t("Student created successfully")),
-              {
-                style: {
-                  maxWidth: "600px",
-                  width: "100%",
-                },
-              });
+            {
+              style: {
+                maxWidth: "600px",
+                width: "100%",
+              },
+            });
             setOpen(false);
             form.reset();
           },
           onError: (err) => {
             console.error("❌ Create error:", err);
             (toast.error(t("Error creating student")),
-              {
-                style: {
-                  maxWidth: "600px",
-                  width: "100%",
-                },
-              });
+            {
+              style: {
+                maxWidth: "600px",
+                width: "100%",
+              },
+            });
           },
         },
       );
@@ -955,9 +1004,9 @@ const Students = () => {
               fields={
                 editingStudent
                   ? fields.filter(
-                      (f) =>
-                        !["passportSeries", "passportNumber"].includes(f.name),
-                    )
+                    (f) =>
+                      !["passportSeries", "passportNumber"].includes(f.name),
+                  )
                   : fields
               }
               loading={isSubmitting}

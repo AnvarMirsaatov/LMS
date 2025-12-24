@@ -1,5 +1,4 @@
 "use client";
-
 import { api } from "@/components/models/axios";
 import MyTable, { type IColumn } from "@/components/my-table";
 import { BorrowBookForm } from "@/components/pages/super-admin/bookings/borrow-book-form";
@@ -27,6 +26,7 @@ import { Form, InputNumber, Tag } from "antd";
 import {
   ChevronLeft,
   ChevronRight,
+  EllipsisVertical,
   Eye,
   FileDown,
   Plus,
@@ -66,6 +66,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { CreatePenaltyModal } from "../createPenaltyModal";
 
 // 🔹 API orqali bookinglarni olish
 // 🔹 API orqali bookinglarni olish
@@ -81,11 +82,11 @@ async function fetchBookings({
   pageSize: number;
   filter: "all" | "APPROVED" | "OVERDUE";
   field?:
-    | "studentId"
-    | "cardNumber"
-    | "fullName"
-    | "bookEpc"
-    | "inventoryNumber";
+  | "studentId"
+  | "cardNumber"
+  | "fullName"
+  | "bookEpc"
+  | "inventoryNumber";
   query?: string | number;
   sortDirection?: "asc" | "desc";
 }) {
@@ -144,7 +145,15 @@ export default function ActiveBookingsPage() {
   const form = useForm();
   const queryClient = useQueryClient();
   const [extendForm] = Form.useForm();
+
+
   const [isExtendOpen, setIsExtendOpen] = useState<string | null>(null);
+  const [viewingPayment, setViewingPayment] = useState<Record<
+    string,
+    any
+  > | null>(null);
+
+
   // const [activeTab, setActiveTab] = useState<"list" | "new-booking">("list"); // 🔹 tab state
 
   const [searchField, setSearchField] = useState<
@@ -153,7 +162,12 @@ export default function ActiveBookingsPage() {
 
   // 🔹 Filter
   const [filter, setFilter] = useState<"all" | "APPROVED" | "OVERDUE">("all");
-  // const [pageNumber, setPageNumber] = useState<number>(1);
+
+  const [paymentOpen, setPaymentOpen] = useState(false);
+  const [viewingDetail, setViewingDetail] = useState<Record<
+    string,
+    any
+  > | null>(null);
   const [pageSize] = useState<number>(10);
   const { data: bookings, isLoading } = useQuery({
     queryKey: [
@@ -363,6 +377,25 @@ export default function ActiveBookingsPage() {
                   <Undo2 />
                 </TooltipBtn>
               </DialogTrigger>
+              {/* shu joyga qo'sh Anvar */}
+              {/* start */}
+              <DropdownMenu >
+                <DropdownMenuTrigger asChild>
+                  <TooltipBtn title={"Turi"}>
+                    <EllipsisVertical />
+                  </TooltipBtn>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="bg-white dark:bg-gray-900 rounded-lg border border-gray-300 p-1  shadow-lg">
+                  <DropdownMenuItem className="hover:bg-gray-200  p-1" style={{ cursor: 'pointer' }}
+                    onClick={() => setPaymentOpen(true)}
+                  >
+                    Jarima yaratish
+                  </DropdownMenuItem>
+
+
+                </DropdownMenuContent>
+                {/* end */}
+              </DropdownMenu>
               <DialogContent className="bg-white dark:bg-background">
                 <DialogHeader>
                   <DialogTitle>{t("ijarani yakunlash")}</DialogTitle>
@@ -387,7 +420,7 @@ export default function ActiveBookingsPage() {
                 </div>
               </DialogContent>
             </Dialog>
-          </div>
+          </div >
         ),
       },
     ],
@@ -485,7 +518,7 @@ export default function ActiveBookingsPage() {
                       <DropdownMenuTrigger asChild>
                         <TooltipBtn
                           className="flex-shrink-0 mr-1 p-2.5 rounded-full transition-colors"
-                          title={t("Filter")}
+                          title={"Filter"}
                         >
                           <Settings2 size={18} />
                         </TooltipBtn>
@@ -907,7 +940,7 @@ export default function ActiveBookingsPage() {
               </p>
 
               <p className="flex justify-between items-center">
-                <strong>{t("Given at")}:</strong>{" "}
+                <strong>{"Given at"}:</strong>{" "}
                 {isLoading ? (
                   <Skeleton className="w-1/2 h-5" />
                 ) : (
@@ -948,6 +981,11 @@ export default function ActiveBookingsPage() {
           </div>
         </SheetContent>
       </Sheet>
+      <CreatePenaltyModal
+        open={paymentOpen}
+        onOpenChange={setPaymentOpen}
+        title="Jarima yaratishА"
+      />
     </div>
   );
 }
