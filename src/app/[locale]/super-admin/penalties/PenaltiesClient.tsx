@@ -8,6 +8,7 @@ import { SearchFilter } from "@/components/pages/super-admin/penaltySearchFilter
 import { FilterType } from "@/components/pages/super-admin/students";
 import { useSearchParams } from "next/navigation";
 import { Fine, FinesResponse, FineType } from "@/types/fine";
+import { EditPenaltyRateModal } from "@/components/pages/super-admin/EditPenaltyRateModal";
 export default function PenaltiesClient({
     slug,
 }: {
@@ -22,29 +23,14 @@ export default function PenaltiesClient({
     const [secondQuery, setSecondQuery] = useState("");
     const [searchValue, setSearchValue] = useState("");
 
+    const [modalOpen, setModalOpen] = useState(false);
+
+    // activeRate dan pricePerDay ni olish
     const { data: activeRate, isLoading: rateLoading } = useActivePenaltyRate();
 
     // Query string orqali kelgan slug
     const searchParams = useSearchParams();
     const querySlug = searchParams.get("query") || undefined;
-
-    // const { data: fines, isLoading: finesLoading } = useFines({
-    //     status: filter,
-    //     pageNumber: page,
-    //     pageSize: 1000,
-    //     sortDirection: "desc",
-    //     ...(querySlug
-    //         ? { field: isNaN(Number(querySlug)) ? "fullName" : "id", query: querySlug }
-    //         : searchField === "fullName"
-    //             ? {
-    //                 field: firstQuery && secondQuery ? "fullName" : firstQuery ? "name" : "surname",
-    //                 query: firstQuery && secondQuery ? `${firstQuery}~${secondQuery}` : firstQuery || secondQuery,
-    //             }
-    //             : searchField === "cardNumber" && searchValue
-    //                 ? { field: "cardNumber", query: searchValue }
-    //                 : {}),
-    // });
-
     const { data: fines, isLoading: finesLoading } = useFines({
         status: filter,
         pageNumber: page,
@@ -82,11 +68,16 @@ export default function PenaltiesClient({
     return (
         <div className="space-y-6 p-2 bg-white rounded-md">
             {/* Active penalty rate */}
-            <div className="p-4 border rounded bg-gray-50">
-                <h2 className="text-lg font-bold mb-2">Aktiv jarima stavkasi</h2>
-                <p>Kunlik narx: {activeRate?.pricePerDay}</p>
-                <p>Sana: {activeRate?.createdAt}</p>
-            </div>
+            <div className="p-4 border rounded bg-gray-50 flex justify-between items-start">
+                <div> <h2 className="text-lg font-bold mb-2">Aktiv jarima stavkasi</h2>
+                    <p>Kunlik narx: {activeRate?.pricePerDay} so'm</p>
+                    <p>Sana: {activeRate?.createdAt}</p></div>
+                <button
+                    className="btn bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-500 active:scale-98"
+                    onClick={() => setModalOpen(true)}
+                >
+                    Tahrirlash
+                </button>            </div>
 
             {/* Search + Filter */}
             <SearchFilter
@@ -174,7 +165,11 @@ export default function PenaltiesClient({
                     </tbody>
                 </table>
             </div>
-
+            <EditPenaltyRateModal
+                open={modalOpen}
+                onOpenChange={setModalOpen}
+                currentRate={activeRate?.pricePerDay}
+            />
             {/* Pagination */}
             <div className="flex items-center gap-4">
 
