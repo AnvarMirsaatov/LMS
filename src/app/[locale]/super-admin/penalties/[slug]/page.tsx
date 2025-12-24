@@ -1,12 +1,5 @@
-
 import PenaltiesClient from "../PenaltiesClient";
 
-interface Props {
-  params: {
-    slug: string;
-  };
-}
-
-export default function Page({ params }: Props) {
+export default function Page({ params }: { params: { slug: string } }) {
   return <PenaltiesClient slug={params.slug} />;
 }
