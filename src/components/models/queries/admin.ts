@@ -1,6 +1,51 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/components/models/axios";
 import { toast } from "sonner";
+import { CreatePenaltyData } from "@/types/fine";
+
+
+
+
+
+export const usePenaltyCreate = () => {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: async (data: CreatePenaltyData) => {
+      let endpoint = "";
+      switch (data.type) {
+        case "lost":
+          endpoint = "/admin/fine/create/lost";
+          break;
+        case "irreparable_damage":
+          endpoint = "/admin/fine/create/irreparable_damage";
+          break;
+        case "damage":
+          endpoint = "/admin/fine/create/damage";
+          break;
+        default:
+          throw new Error("Noma’lum jarima turi");
+      }
+
+      const res = await api.post(endpoint, data);
+      return res.data;
+    },
+    onSuccess: () => {
+      toast.success("Jarima muvaffaqiyatli yaratildi!");
+      queryClient.invalidateQueries({ queryKey: ["fines"] });
+    },
+    onError: (err: any) => {
+      console.error('onError=>>>', err);
+      toast.error("Jarima yaratishda xatolik yuz berdi");
+    },
+  });
+
+  return {
+    ...mutation,
+    isLoading: mutation.status === "pending", // "loading" emas, "pending"
+  };
+
+};
 
 export const useAdministrators = ({
   pageNumber,

@@ -1,39 +1,28 @@
+// hooks/useFines.ts
 import { useQuery, UseQueryResult } from "@tanstack/react-query";
 import { api } from "@/components/models/axios";
+import { FinesResponse } from "@/types/fine";
 
-type Fine = {
-    id: string;
-    name: string;
-    surname: string;
-    bookTitle: string;
-    type: string;
-    amount: number;
-    resolved: boolean;
-};
-
-type Params = {
-    status: "all" | "resolved" | "unresolved";
-    pageNumber: number;
-    pageSize: number;
-    sortDirection: "asc" | "desc";
-    field?: "studentId" | "fullName" | "cardNumber";
+export interface FinesParams {
+    status?: string;
+    pageNumber?: number;
+    pageSize?: number;
+    sortDirection?: "asc" | "desc";
+    field?: string;
     query?: string;
-};
+}
 
-export const useFines = (params: Params): UseQueryResult<Fine[]> => {
+export const useFines = (
+    params: FinesParams
+): UseQueryResult<FinesResponse, Error> => {
     const { field, query, ...rest } = params;
 
-    return useQuery<Fine[]>({
+    return useQuery<FinesResponse>({
         queryKey: ["fines", params],
         queryFn: async () => {
-            const res = await api.get("/admin/fine", {
-                params: {
-                    ...rest,
-                    ...(field && query ? { field, query } : {}),
-                },
-            });
-            return res.data.data;
+            const res = await api.get("/admin/fine", { params });
+            return res.data;
         },
-        keepPreviousData: true, // Endi type mos keladi
     });
+
 };

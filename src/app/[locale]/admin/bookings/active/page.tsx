@@ -1,7 +1,6 @@
-import React from "react";
-import ActiveBookingsPage from "@/components/pages/super-admin/bookings/active";
 import { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import ActiveBookingsPage from "@/components/pages/super-admin/bookings/active";
 
 export const generateMetadata = async ({
   params,

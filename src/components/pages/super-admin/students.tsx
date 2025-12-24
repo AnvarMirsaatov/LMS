@@ -342,26 +342,48 @@ const Students = () => {
                   </TooltipBtn>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
-                  <DropdownMenuItem
-                    onClick={() => {
-                      router.push(
-                        `/super-admin/users/students/${record.id}?type=active`,
-                      );
-                    }}
-                  >
-                    {t("Active bronlar")}
-                  </DropdownMenuItem>
+                  {record.hasBookings ? (
+                    <DropdownMenuItem
+                      onClick={() => {
+                        router.push(
+                          `/super-admin/users/students/${record.id}?type=active`,
+                        );
+                      }}
+                    >
+                      {t("Active bronlar")}
+                    </DropdownMenuItem>
+                  )
+                    : (
+                      <DropdownMenuItem
+                        disabled
+                      >
+                        {t("Active bronlar")}
+                      </DropdownMenuItem>
+                    )}
 
-                  <DropdownMenuItem
-                    onClick={() => {
-                      router.push(
-                        `/super-admin/users/students/${record.id}?type=archive`,
-                      );
-                    }}
-                  >
-                    {t("Archive bronlar")}
-                  </DropdownMenuItem>
-                  {role === "super-admin" && activeRate?.count > 0 && (
+                  {
+                    record.hasHistory ? (
+                      <DropdownMenuItem
+                        onClick={() => {
+                          router.push(
+                            `/super-admin/users/students/${record.id}?type=archive`,
+                          );
+                        }}
+                      >
+                        {t("Archive bronlar")}
+                      </DropdownMenuItem>
+                    )
+                      :
+                      (
+                        <DropdownMenuItem
+                          disabled
+                        >
+                          {t("Archive bronlar")}
+                        </DropdownMenuItem>
+                      )
+                  }
+
+                  {role === "admin" && record.hasFines ? (
                     <DropdownMenuItem
                       onClick={() => {
                         const fullNameQuery = `${record.name}~${record.surname}`;
@@ -372,7 +394,15 @@ const Students = () => {
                     >
                       Jarimalar
                     </DropdownMenuItem>
-                  )}
+                  )
+                    :
+                    (
+                      <DropdownMenuItem
+                        disabled>
+                        Jarimalar
+                      </DropdownMenuItem>
+                    )
+                  }
 
                 </DropdownMenuContent>
               </DropdownMenu>
