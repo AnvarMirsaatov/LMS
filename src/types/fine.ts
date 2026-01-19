@@ -1,55 +1,42 @@
-// types/fine.ts
-
 export enum FineType {
-    OVERDUE = "OVERDUE",
-    DAMAGE = "DAMAGE",
-    LOST = "LOST",
-    IRREPARABLE_DAMAGE = "IRREPARABLE_DAMAGE",
+  OVERDUE = "OVERDUE",
+  DAMAGE = "DAMAGE",
+  LOST = "LOST",
+  IRREPARABLE_DAMAGE = "IRREPARABLE_DAMAGE",
 }
 
 export interface Fine {
-    id: number;
-
-    name?: string;
-    surname?: string;
-    faculty?: string;
-
-    bookAuthor?: string;
-    bookTitle?: string;
-    inventoryNumber?: string;
-
-    type: FineType;
-    amount: number;
-    resolved?: boolean;
-
-    createdAt?: string;
+  id: number;
+  name?: string;
+  surname?: string;
+  faculty?: string;
+  bookAuthor?: string;
+  bookTitle?: string;
+  inventoryNumber?: string;
+  type: FineType;
+  amount: number;
+  resolved?: boolean;
+  createdAt?: string;
 }
 
-
-
 export interface FinesResponse {
-    data: Fine[];
-    totalPages: number;
-    currentPage: number;
-    totalElements: number;
+  data: Fine[];
+  totalPages: number;
+  currentPage: number;
+  totalElements: number;
 }
 
 export interface CreatePenaltyData {
-    type: "lost" | "irreparable_damage" | "damage";
-    fineId?: number; // agar kerak bo‘lsa
-    details: string;
+  type: "lost" | "irreparable_damage" | "damage";
+  fineId?: number; // agar kerak bo‘lsa
+  details: string;
+  amount?: number; // ✅ qo‘shildi
 }
 export interface FinesParams {
-    status?: string;
-    pageNumber?: number;
-    pageSize?: number;
-    sortDirection?: "asc" | "desc";
-    field?: string;
-    query?: string;
-}
-export interface FinesResponse {
-    currentPage: number;
-    data: Fine[];
-    totalElements: number;
-    totalPages: number;
+  status?: string;
+  pageNumber?: number;
+  pageSize?: number;
+  sortDirection?: "asc" | "desc";
+  field?: string;
+  query?: string;
 }

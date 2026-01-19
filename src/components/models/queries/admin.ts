@@ -3,48 +3,59 @@ import { api } from "@/components/models/axios";
 import { toast } from "sonner";
 import { CreatePenaltyData } from "@/types/fine";
 
-
-
-
-
 export const usePenaltyCreate = () => {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
     mutationFn: async (data: CreatePenaltyData) => {
       let endpoint = "";
+
       switch (data.type) {
         case "lost":
           endpoint = "/admin/fine/create/lost";
           break;
+
         case "irreparable_damage":
-          endpoint = "/admin/fine/create/irreparable_damage";
+          endpoint = "/admin/fine/create/irreparable-damage";
           break;
+
         case "damage":
           endpoint = "/admin/fine/create/damage";
           break;
+
         default:
           throw new Error("Noma’lum jarima turi");
       }
+      console.log("SEND PARAMS:", {
+        endpoint,
+        bookingId: data,
+        amount: data.amount,
+      });
+      const res = await api.post(endpoint, null, {
+        params: {
+          bookingId: data.fineId,
+          amount: data.amount ?? 0.1,
+        },
+      });
 
-      const res = await api.post(endpoint, data);
       return res.data;
     },
+
     onSuccess: () => {
       toast.success("Jarima muvaffaqiyatli yaratildi!");
       queryClient.invalidateQueries({ queryKey: ["fines"] });
     },
+
     onError: (err: any) => {
-      console.error('onError=>>>', err);
+      console.error("onError=>>>", err);
       toast.error("Jarima yaratishda xatolik yuz berdi");
     },
   });
 
   return {
     ...mutation,
-    isLoading: mutation.status === "pending", // "loading" emas, "pending"
+    isLoading: mutation.status === "pending", 
   };
-
 };
 
 export const useAdministrators = ({
@@ -65,15 +76,6 @@ export const useAdministrators = ({
 
     select: (data: Record<string, any>) => data?.data,
   });
-
-// export const useAdminDelete = () => {
-//   return useMutation({
-//     mutationFn: async (id: string | number) => {
-//       const res = await api.delete(`/super-admin/admins/${id}`);
-//       return res.data; // <-- natijani qaytaramiz
-//     },
-//   });
-// };
 
 export const useAdminDelete = () => {
   const queryClient = useQueryClient();

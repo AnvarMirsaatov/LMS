@@ -24,18 +24,20 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import useLayoutStore from "@/store/layout-store"; // Enhanced Types
-import {
-  Bell,
-  Calendar,
-  ChevronDown,
-  CircleUser,
-  FolderOpen,
-  LayoutDashboard,
-  LibraryBig,
-  LogOut,
-  Users,
-  X,
-} from "lucide-react";
+  import {
+    Bell,
+    Calendar,
+    ChevronDown,
+    CircleUser,
+    FolderOpen,
+    Gavel,
+    LayoutDashboard,
+    LibraryBig,
+    LogOut,
+    ShieldAlert,
+    Users,
+    X,
+  } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -255,7 +257,7 @@ const OptimizedSidebar: React.FC<OptimizedSidebarProps> = ({
       },
       {
         title: "Jarimalar",
-        icon: <CircleUser className="w-5 h-5" />,
+        icon: <ShieldAlert className="w-5 h-5" />,
         href: `/${user?.role?.toLowerCase().replace("_", "-")}/penalties`,
         activePatterns: [
           `/${user?.role?.toLowerCase().replace("_", "-")}/penalties`,
