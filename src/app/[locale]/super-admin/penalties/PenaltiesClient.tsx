@@ -9,25 +9,17 @@ import { Fine, FineType } from "@/types/fine";
 import { EditPenaltyRateModal } from "@/components/pages/super-admin/EditPenaltyRateModal";
 import MyTable, { IColumn } from "@/components/my-table";
 import { Button, Tag } from "antd";
-import { ChevronLeft, ChevronRight, Search, Settings2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import ReactPaginate from "react-paginate";
 import { useRouter, useSearchParams } from "next/navigation";
 import TooltipBtn from "@/components/tooltip-btn";
 import { TabsList, TabsTrigger } from "@radix-ui/react-tabs";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@radix-ui/react-dropdown-menu";
 import { Tabs } from "@/components/ui/tabs";
 interface PenaltiesClientProps {
   slug?: string;
 }
 export default function PenaltiesClient({ slug }: PenaltiesClientProps) {
   const t = useTranslations();
-
-  const [pageSize, setPageSize] = useState(10);
 
   const [filter, setFilter] = useState<FilterType>("all");
   const [searchField, setSearchField] = useState<"fullName" | "cardNumber">(
@@ -66,22 +58,6 @@ export default function PenaltiesClient({ slug }: PenaltiesClientProps) {
     router.push(`?${params.toString()}`);
   };
 
-  // useEffect(() => {
-  //   if (querySlug) {
-  //     if (querySlug.includes("~")) {
-  //       const [first, second] = querySlug.split("~");
-  //       setFirstQuery(first);
-  //       setSecondQuery(second);
-  //     } else {
-  //       setFirstQuery(querySlug);
-  //       setSecondQuery("");
-  //     }
-  //   } else {
-  //     setFirstQuery("");
-  //     setSecondQuery("");
-  //   }
-  // }, [querySlug]);
-
   useEffect(() => {
     if (querySlug) {
       setAppliedQuery({
@@ -93,63 +69,44 @@ export default function PenaltiesClient({ slug }: PenaltiesClientProps) {
     }
   }, [querySlug]);
 
-  // const queryObject = (() => {
-  //   if (querySlug) {
-  //     return {
-  //       field: isNaN(Number(querySlug)) ? "fullName" : "id",
-  //       query: querySlug,
-  //     };
-  //   } else if (searchField === "fullName" && (firstQuery || secondQuery)) {
-  //     return {
-  //       field:
-  //         firstQuery && secondQuery
-  //           ? "fullName"
-  //           : firstQuery
-  //             ? "name"
-  //             : "surname",
-  //       query:
-  //         firstQuery && secondQuery
-  //           ? `${firstQuery}~${secondQuery}`
-  //           : firstQuery || secondQuery,
-  //     };
-  //   } else if (searchField === "cardNumber" && searchValue) {
-  //     return { field: "cardNumber", query: searchValue };
-  //   }
-  //   return {};
-  // });
+  const pageSize = useMemo(() => {
+    return appliedQuery.query ? 100 : 10;
+  }, [appliedQuery.query]);
+
   const queryObject = useMemo(() => {
-    if (searchField === "cardNumber" && searchValue.trim()) {
+    const name = firstQuery.trim().toUpperCase();
+    const surname = secondQuery.trim().toUpperCase();
+
+    if (!name && !surname) return {};
+
+    // faqat ism
+    if (name && !surname) {
       return {
-        field: "cardNumber",
-        query: searchValue.trim(),
+        field: "fullName",
+        query: `${name}~`,
       };
     }
 
-    if (searchField === "fullName") {
-      if (firstQuery && secondQuery) {
-        return {
-          field: "fullName", // backend shuni kutadimi? tekshiring
-          query: `${firstQuery}~${secondQuery}`,
-        };
-      }
-
-      if (firstQuery) {
-        return {
-          field: "name",
-          query: firstQuery,
-        };
-      }
-
-      if (secondQuery) {
-        return {
-          field: "surname",
-          query: secondQuery,
-        };
-      }
+    // faqat familiya
+    if (!name && surname) {
+      return {
+        field: "fullName",
+        query: `~${surname}`,
+      };
     }
 
-    return {};
-  }, [searchField, searchValue, firstQuery, secondQuery]);
+    // ikkalasi bor
+    return {
+      field: "fullName",
+      query: `${name}~${surname}`,
+    };
+  }, [firstQuery, secondQuery]);
+
+  // const onEnterSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  //   if (e.key === "Enter") {
+  //     triggerSearch();
+  //   }
+  // };
 
   const {
     data: fines = {
@@ -166,6 +123,22 @@ export default function PenaltiesClient({ slug }: PenaltiesClientProps) {
     sortDirection: "desc",
     ...appliedQuery,
   });
+
+  const triggerSearch = () => {
+    setAppliedQuery(queryObject);
+    setPageNum(1);
+
+    const params = new URLSearchParams(window.location.search);
+    params.set("page", "1");
+
+    if (queryObject.query) {
+      params.set("query", queryObject.query);
+    } else {
+      params.delete("query");
+    }
+
+    router.push(`?${params.toString()}`);
+  };
 
   const columns: IColumn[] = [
     {
@@ -248,6 +221,15 @@ export default function PenaltiesClient({ slug }: PenaltiesClientProps) {
       ),
     },
   ];
+
+  useEffect(() => {
+    setPageNum(1);
+
+    const params = new URLSearchParams(window.location.search);
+    params.set("page", "1");
+    router.push(`?${params.toString()}`);
+  }, [pageSize]);
+
   return (
     <div className="space-y-6 p-2 bg-white rounded-md">
       <div className="p-4 border rounded bg-gray-50 flex justify-between items-start">
@@ -314,22 +296,22 @@ export default function PenaltiesClient({ slug }: PenaltiesClientProps) {
 
                 {/* Search Inputs */}
                 <div className="flex-1 flex items-center gap-3 px-1 flex-wrap">
-                  {/* {searchField === "fullName" ? ( */}
                   <>
                     <input
                       type="text"
                       placeholder={t("Name")}
                       value={firstQuery}
                       onChange={(e) => setFirstQuery(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && triggerSearch()}
                       className="flex-1 bg-transparent outline-none text-gray-700 placeholder-gray-400 text-sm dark:text-white"
                     />
                     <div className="w-px h-5 bg-gray-300 dark:bg-gray-700 "></div>
-                    {/* inputlar wrap bolganda tepadigi div yoqolishi kerak */}
                     <input
                       type="text"
                       placeholder={t("Last Name")}
                       value={secondQuery}
                       onChange={(e) => setSecondQuery(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && triggerSearch()}
                       className="flex-1 bg-transparent outline-none text-gray-700 placeholder-gray-400 text-sm dark:text-white"
                     />
                   </>
@@ -343,24 +325,7 @@ export default function PenaltiesClient({ slug }: PenaltiesClientProps) {
                     /> */}
                   {/* )} */}
                 </div>
-                <TooltipBtn
-                  title={t("Search")}
-                  onClick={() => {
-                    setAppliedQuery(queryObject);
-                    setPageNum(1);
-
-                    const params = new URLSearchParams(window.location.search);
-                    params.set("page", "1");
-
-                    if (queryObject.query) {
-                      params.set("query", queryObject.query);
-                    } else {
-                      params.delete("query");
-                    }
-
-                    router.push(`?${params.toString()}`);
-                  }}
-                >
+                <TooltipBtn title={t("Search")} onClick={triggerSearch}>
                   <Search size={18} />
                 </TooltipBtn>
               </div>
