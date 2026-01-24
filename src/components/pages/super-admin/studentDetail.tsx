@@ -4,7 +4,7 @@ import { useParams, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/components/models/axios";
 import MyTable, { type IColumn } from "@/components/my-table";
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import TooltipBtn from "@/components/tooltip-btn";
 import Link from "next/link";
@@ -89,6 +89,8 @@ export default function StudentDetail() {
             sortDirection: "desc",
           },
         });
+        console.log("data", data);
+
         return res.data.data;
       }
     },

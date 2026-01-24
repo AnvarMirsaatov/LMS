@@ -26,17 +26,15 @@ export const usePenaltyCreate = () => {
         default:
           throw new Error("Noma’lum jarima turi");
       }
-      console.log("SEND PARAMS:", {
-        endpoint,
-        bookingId: data,
-        amount: data.amount,
-      });
-      const res = await api.post(endpoint, null, {
-        params: {
-          bookingId: data.fineId,
-          amount: data.amount ?? 0.1,
-        },
-      });
+
+      const payload = {
+        bookingId: data.fineId,
+        amount: data.amount ?? 0.1,
+      };
+
+      console.log("SEND BODY:", payload);
+
+      const res = await api.post(endpoint, payload);
 
       return res.data;
     },
@@ -54,7 +52,7 @@ export const usePenaltyCreate = () => {
 
   return {
     ...mutation,
-    isLoading: mutation.status === "pending", 
+    isLoading: mutation.status === "pending",
   };
 };
 
@@ -131,6 +129,50 @@ export const useResendActivationCode = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["administrators"] });
       toast.success("Kod qayta yuborildi");
+    },
+  });
+};
+
+//kechiktirilgan jarimani pul berish orqali tolash API
+interface SettleFineMoneyPayload {
+  paymentType: string;
+  comment?: string;
+}
+
+export const useSettleFineMoney = (fineId: number | string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: SettleFineMoneyPayload) => {
+      const res = await api.post(
+        `/admin/fine/settlement/money/${fineId}`,
+        data,
+      );
+      return res.data;
+    },
+    onSuccess: () => {
+      // jarimalar yoki fines listi bo‘lsa
+      queryClient.invalidateQueries({ queryKey: ["fines"] });
+    },
+  });
+};
+
+//sababli kechiktirilgan jarimani bekor qilish API
+interface SettleFineMoneyPayload {
+  paymentType: string;
+  comment?: string;
+}
+
+export const useDeletePenalties = (fineId: number) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: { comment: string }) => {
+      const res = await api.post(`/admin/fine/${fineId}/delete`, data);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["fines"] });
     },
   });
 };

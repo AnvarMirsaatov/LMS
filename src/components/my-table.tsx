@@ -427,15 +427,15 @@ const MyTable = ({
     [getRowKey],
   );
 
-  const handleFullscreen = useCallback(() => {
-    if (!document.fullscreenElement) {
-      tableRef.current?.requestFullscreen();
-      setIsFullscreen(true);
-    } else {
-      document.exitFullscreen();
-      setIsFullscreen(false);
-    }
-  }, []);
+    const handleFullscreen = useCallback(() => {
+      if (!document.fullscreenElement) {
+        tableRef.current?.requestFullscreen();
+        setIsFullscreen(true);
+      } else {
+        document.exitFullscreen();
+        setIsFullscreen(false);
+      }
+    }, []);
 
   const handleColumnPin = useCallback(
     (columnKey: string, position: "left" | "right") => {
@@ -483,7 +483,7 @@ const MyTable = ({
                       {title ? <>{title}</> : <span></span>}
                       {searchable && (
                         <div className="relative flex-1 min-w-[200px] max-w-sm">
-                          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                         <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                           <Input
                             placeholder={t("search")}
                             value={searchTerm}
@@ -500,7 +500,7 @@ const MyTable = ({
                           <DropdownMenuTrigger asChild>
                             <TooltipBtn
                               title={t("ustunlarni boshqarish")}
-                              variant="outline"
+                              variant="outline" 
                               size="sm"
                             >
                               <Eye className="mr-2 w-4 h-4" />

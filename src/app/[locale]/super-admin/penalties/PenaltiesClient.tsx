@@ -1,24 +1,25 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useActivePenaltyRate } from "@/hooks/useActivePenaltyRate";
 import { useFines } from "@/hooks/useFines";
 import { ActionColumns } from "@/components/pages/super-admin/penaltiesActionBtn";
-import { SearchFilter } from "@/components/pages/super-admin/penaltySearchFilter";
 import { FilterType } from "@/components/pages/super-admin/students";
-import { useSearchParams } from "next/navigation";
-import { Fine, FinesResponse, FineType } from "@/types/fine";
+import { Fine, FineType } from "@/types/fine";
 import { EditPenaltyRateModal } from "@/components/pages/super-admin/EditPenaltyRateModal";
-
+import MyTable, { IColumn } from "@/components/my-table";
+import { Button, Tag } from "antd";
+import { ChevronLeft, ChevronRight, Search } from "lucide-react";
+import ReactPaginate from "react-paginate";
+import { useRouter, useSearchParams } from "next/navigation";
+import TooltipBtn from "@/components/tooltip-btn";
+import { TabsList, TabsTrigger } from "@radix-ui/react-tabs";
+import { Tabs } from "@/components/ui/tabs";
 interface PenaltiesClientProps {
   slug?: string;
 }
 export default function PenaltiesClient({ slug }: PenaltiesClientProps) {
   const t = useTranslations();
-
-  const [page, setPage] = useState(1);
-
-  const PAGE_SIZE = 10;
 
   const [filter, setFilter] = useState<FilterType>("all");
   const [searchField, setSearchField] = useState<"fullName" | "cardNumber">(
@@ -28,70 +29,206 @@ export default function PenaltiesClient({ slug }: PenaltiesClientProps) {
   const [secondQuery, setSecondQuery] = useState("");
   const [searchValue, setSearchValue] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
+  const [appliedQuery, setAppliedQuery] = useState<{
+    field?: string;
+    query?: string;
+  }>({});
 
   const { data: activeRate, isLoading: rateLoading } = useActivePenaltyRate();
   const searchParams = useSearchParams();
   const querySlug = searchParams.get("query") || undefined;
+  const searchPagination = useSearchParams();
+  const router = useRouter();
+
+  const [pageNumber, setPageNum] = useState<number>(
+    Number(searchPagination.get("page")) || 1,
+  );
+  const handlePageChange = (newPage: number) => {
+    setPageNum(newPage);
+
+    const params = new URLSearchParams(window.location.search);
+    params.set("page", newPage.toString());
+
+    if (appliedQuery.query) {
+      params.set("query", appliedQuery.query);
+    } else {
+      params.delete("query");
+    }
+
+    router.push(`?${params.toString()}`);
+  };
 
   useEffect(() => {
     if (querySlug) {
-      if (querySlug.includes("~")) {
-        const [first, second] = querySlug.split("~");
-        setFirstQuery(first);
-        setSecondQuery(second);
-      } else {
-        setFirstQuery(querySlug);
-        setSecondQuery("");
-      }
+      setAppliedQuery({
+        field: isNaN(Number(querySlug)) ? "fullName" : "id",
+        query: querySlug,
+      });
     } else {
-      setFirstQuery("");
-      setSecondQuery("");
+      setAppliedQuery({});
     }
   }, [querySlug]);
 
-  const queryObject = (() => {
-    if (querySlug) {
-      return {
-        field: isNaN(Number(querySlug)) ? "fullName" : "id",
-        query: querySlug,
-      };
-    } else if (searchField === "fullName" && (firstQuery || secondQuery)) {
-      return {
-        field:
-          firstQuery && secondQuery
-            ? "fullName"
-            : firstQuery
-              ? "name"
-              : "surname",
-        query:
-          firstQuery && secondQuery
-            ? `${firstQuery}~${secondQuery}`
-            : firstQuery || secondQuery,
-      };
-    } else if (searchField === "cardNumber" && searchValue) {
-      return { field: "cardNumber", query: searchValue };
-    }
-    return {};
-  })();
+  const pageSize = useMemo(() => {
+    return appliedQuery.query ? 100 : 10;
+  }, [appliedQuery.query]);
 
-  // const { data: fines, isLoading: finesLoading } = useFines({
-  //   status: filter === "all" ? "active" : filter,
-  //   pageNumber: page,
-  //   pageSize: PAGE_SIZE,
-  //   sortDirection: "desc",
-  //   ...queryObject,
-  // });
+  const queryObject = useMemo(() => {
+    const name = firstQuery.trim().toUpperCase();
+    const surname = secondQuery.trim().toUpperCase();
+
+    if (!name && !surname) return {};
+
+    // faqat ism
+    if (name && !surname) {
+      return {
+        field: "fullName",
+        query: `${name}~`,
+      };
+    }
+
+    // faqat familiya
+    if (!name && surname) {
+      return {
+        field: "fullName",
+        query: `~${surname}`,
+      };
+    }
+
+    // ikkalasi bor
+    return {
+      field: "fullName",
+      query: `${name}~${surname}`,
+    };
+  }, [firstQuery, secondQuery]);
+
+  // const onEnterSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  //   if (e.key === "Enter") {
+  //     triggerSearch();
+  //   }
+  // };
 
   const {
-    data: fines = { data: [], totalPages: 1, currentPage: 1, totalElements: 0 },
+    data: fines = {
+      data: [],
+      totalPages: 1,
+      currentPage: 1,
+      totalElements: 0,
+    },
     isLoading: finesLoading,
   } = useFines({
     status: filter === "all" ? "active" : filter,
-    pageNumber: page,
-    pageSize: PAGE_SIZE,
+    pageNumber,
+    pageSize,
     sortDirection: "desc",
-    ...queryObject,
+    ...appliedQuery,
   });
+
+  const triggerSearch = () => {
+    setAppliedQuery(queryObject);
+    setPageNum(1);
+
+    const params = new URLSearchParams(window.location.search);
+    params.set("page", "1");
+
+    if (queryObject.query) {
+      params.set("query", queryObject.query);
+    } else {
+      params.delete("query");
+    }
+
+    router.push(`?${params.toString()}`);
+  };
+
+  const columns: IColumn[] = [
+    {
+      key: "index",
+      title: "#",
+      render: (_: any, __: Fine, index: number) =>
+        (pageNumber - 1) * pageSize + index + 1,
+    },
+    {
+      key: "name",
+      title: "Ism",
+      dataIndex: "name",
+      render: (val: string) => val,
+    },
+    {
+      key: "surname",
+      title: "Familiya",
+      dataIndex: "surname",
+      render: (val: string) => val,
+    },
+    {
+      key: "bookAuthor",
+      title: "Kitob muallifi",
+      dataIndex: "bookAuthor",
+      render: (val?: string) =>
+        val ? (val.length > 20 ? val.slice(0, 20) + "..." : val) : "-",
+    },
+    {
+      key: "bookTitle",
+      title: "Kitob nomi",
+      dataIndex: "bookTitle",
+      render: (val?: string) =>
+        val ? (val.length > 30 ? val.slice(0, 30) + "..." : val) : "-",
+    },
+    {
+      key: "type",
+      title: "Jarima turi",
+      dataIndex: "type",
+      render: (type: FineType) => {
+        switch (type) {
+          case FineType.LOST:
+            return "Yo‘qotilgan";
+          case FineType.DAMAGE:
+            return "Shikastlangan";
+          case FineType.OVERDUE:
+            return "Kechiktirilgan";
+          case FineType.IRREPARABLE_DAMAGE:
+            return "Yaroqsiz";
+          default:
+            return "-";
+        }
+      },
+    },
+    {
+      key: "amount",
+      title: "Summa",
+      dataIndex: "amount",
+      render: (val: number) => `${val} so'm`,
+    },
+    {
+      key: "resolved",
+      title: "Status",
+      dataIndex: "resolved",
+      render: (resolved: boolean) => (
+        <Tag color={resolved ? "green" : "red"}>
+          {resolved ? "To'lov qilindi" : "To'lov qilinmadi"}
+        </Tag>
+      ),
+    },
+    {
+      key: "createdAt",
+      title: "Sana",
+      dataIndex: "createdAt",
+    },
+    {
+      key: "actions",
+      title: "Harakatlar",
+      render: (_: any, record: Fine) => (
+        <ActionColumns fine={record} onSuccess={() => {}} />
+      ),
+    },
+  ];
+
+  useEffect(() => {
+    setPageNum(1);
+
+    const params = new URLSearchParams(window.location.search);
+    params.set("page", "1");
+    router.push(`?${params.toString()}`);
+  }, [pageSize]);
 
   return (
     <div className="space-y-6 p-2 bg-white rounded-md">
@@ -102,194 +239,188 @@ export default function PenaltiesClient({ slug }: PenaltiesClientProps) {
           <p>Sana: {activeRate?.createdAt}</p>
         </div>
         <button
-          className="btn bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-500 active:scale-98"
+          className="btn bg-green-600 text-white px-4 py-2 rounded-md hover:bg-red-500 active:scale-98"
           onClick={() => setModalOpen(true)}
         >
           Tahrirlash
         </button>
       </div>
+      <MyTable
+        title={<h1 className="text-xl font-bold">Jarimalar</h1>}
+        columns={columns}
+        dataSource={fines.data || []}
+        isLoading={rateLoading || finesLoading}
+        pagination={false}
+        header={
+          <div className="flex gap-4 items-center flex-wrap">
+            <div className="flex items-center gap-3">
+              <div className="flex-1 rounded-full shadow-lg p-1 flex items-center gap-2 bg-white dark:bg-gray-900">
+                {/* Filter Dropdown */}
+                {/* <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <TooltipBtn
+                      className="flex-shrink-0 mr-1 p-2.5 rounded-full transition-colors"
+                      title={"Filter"}
+                    >
+                      <Settings2 size={18} />
+                    </TooltipBtn>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-56">
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setSearchField("cardNumber");
+                        setSearchValue("");
+                        setFirstQuery("");
+                        setSecondQuery("");
+                      }}
+                      className={
+                        searchField === "cardNumber" ? "bg-blue-50" : ""
+                      }
+                    >
+                      {t("Card number")}
+                    </DropdownMenuItem>
 
-      <SearchFilter
-        filter={filter}
-        setFilter={(val) => {
-          setFilter(val);
-          setPage(1);
-        }}
-        searchField={searchField}
-        setSearchField={(val) => {
-          setSearchField(val);
-          setPage(1);
-        }}
-        firstQuery={firstQuery}
-        setFirstQuery={(val) => {
-          setFirstQuery(val);
-          setPage(1);
-        }}
-        secondQuery={secondQuery}
-        setSecondQuery={(val) => {
-          setSecondQuery(val);
-          setPage(1);
-        }}
-        searchValue={searchValue}
-        setSearchValue={(val) => {
-          setSearchValue(val);
-          setPage(1);
-        }}
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setSearchField("fullName");
+                        setSearchValue("");
+                        setFirstQuery("");
+                        setSecondQuery("");
+                      }}
+                      className={searchField === "fullName" ? "bg-blue-50" : ""}
+                    >
+                      {t("Name and last name search")}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu> */}
+
+                {/* Search Inputs */}
+                <div className="flex-1 flex items-center gap-3 px-1 flex-wrap">
+                  <>
+                    <input
+                      type="text"
+                      placeholder={t("Name")}
+                      value={firstQuery}
+                      onChange={(e) => setFirstQuery(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && triggerSearch()}
+                      className="flex-1 bg-transparent outline-none text-gray-700 placeholder-gray-400 text-sm dark:text-white"
+                    />
+                    <div className="w-px h-5 bg-gray-300 dark:bg-gray-700 "></div>
+                    <input
+                      type="text"
+                      placeholder={t("Last Name")}
+                      value={secondQuery}
+                      onChange={(e) => setSecondQuery(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && triggerSearch()}
+                      className="flex-1 bg-transparent outline-none text-gray-700 placeholder-gray-400 text-sm dark:text-white"
+                    />
+                  </>
+                  {/* ) : ( */}
+                  {/* <input
+                      type="text"
+                      placeholder={t("Search")}
+                      value={searchValue}
+                      onChange={(e) => setSearchValue(e.target.value)}
+                      className="w-90 flex-1 bg-transparent outline-none text-gray-700 placeholder-gray-400 text-sm dark:text-white"
+                    /> */}
+                  {/* )} */}
+                </div>
+                <TooltipBtn title={t("Search")} onClick={triggerSearch}>
+                  <Search size={18} />
+                </TooltipBtn>
+              </div>
+            </div>
+            <Tabs
+              value={filter}
+              onValueChange={(val) => {
+                setFilter(val as any);
+                setPageNum(1);
+                setAppliedQuery({});
+
+                const params = new URLSearchParams(window.location.search);
+                params.set("page", "1");
+                params.delete("query");
+
+                router.push(`?${params.toString()}`);
+              }}
+            >
+              <TabsList className="flex gap-2">
+                <TabsTrigger
+                  value="all"
+                  className="data-[state=active]:bg-green-600 px-2 py-1 rounded-lg data-[state=active]:text-white"
+                >
+                  {t("All")}
+                </TabsTrigger>
+                <TabsTrigger
+                  value="resolved"
+                  className="data-[state=active]:bg-green-600 px-2 py-1 rounded-lg data-[state=active]:text-white"
+                >
+                  To'lov qilingan
+                </TabsTrigger>
+                <TabsTrigger
+                  value="unresolved"
+                  className="data-[state=active]:bg-green-600 px-2 py-1 rounded-lg data-[state=active]:text-white"
+                >
+                  To'lov qilinmagan
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
+        }
+        footer={
+          <div
+            className={
+              "flex flex-col lg:flex-row justify-between items-center gap-2"
+            }
+          >
+            <div className="font-bold text-[20px] space-y-1 flex items-center gap-5">
+              <p className="text-sm">
+                {t("Total Pages")}:{" "}
+                <span className="text-green-600">{fines?.totalPages}</span>
+              </p>
+              <p className="text-sm">
+                {t("Current Page")}:{" "}
+                <span className="text-green-600">{fines?.currentPage}</span>
+              </p>
+              <p className="text-sm">
+                {t("Total Elements")}:{" "}
+                <span className="text-green-600">{fines?.totalElements}</span>
+              </p>
+            </div>
+
+            <ReactPaginate
+              breakLabel="..."
+              onPageChange={(e) => handlePageChange(e.selected + 1)}
+              forcePage={pageNumber - 1}
+              pageRangeDisplayed={3}
+              marginPagesDisplayed={1}
+              pageCount={fines?.totalPages || 0}
+              previousLabel={
+                <Button className={"bg-white text-black"}>
+                  <ChevronLeft />
+                  {t("Return")}
+                </Button>
+              }
+              nextLabel={
+                <Button className={"bg-white text-black"}>
+                  {t("Next")} <ChevronRight />
+                </Button>
+              }
+              className={"flex justify-center gap-2 items-center my-5"}
+              renderOnZeroPageCount={null}
+              pageClassName="list-none"
+              pageLinkClassName="px-3 py-1 rounded-full border cursor-pointer block"
+              activeLinkClassName="bg-green-600 text-white rounded-full"
+            />
+          </div>
+        }
       />
-
-      {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full border border-gray-300">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="border p-2">#</th>
-              <th className="border p-2">Ism</th>
-              <th className="border p-2">Familiya</th>
-              <th className="border p-2">Kitob muallifi</th>
-              <th className="border p-2">Kitob nomi</th>
-              <th className="border p-2">Jarima turi</th>
-              <th className="border p-2">Summa</th>
-              <th className="border p-2">Status</th>
-              <th className="border p-2">Sana</th>
-              <th className="border p-2">Harakatlar</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rateLoading || finesLoading ? (
-              Array(10)
-                .fill(0)
-                .map((_, i) => (
-                  <tr key={i}>
-                    {Array(PAGE_SIZE)
-                      .fill(0)
-                      .map((_, j) => (
-                        <td
-                          key={j}
-                          className="h-6 bg-gray-200 animate-pulse border p-2 text-center"
-                        ></td>
-                      ))}
-                  </tr>
-                ))
-            ) : fines?.data?.length ? (
-              fines.data.map((fine: Fine, index: number) => (
-                <tr key={fine.id} className="hover:bg-gray-50">
-                  <td className="border p-2 text-center">
-                    {(page - 1) * PAGE_SIZE + index + 1}
-                  </td>
-
-                  <td className="capitalize border p-2">
-                    {fine.name?.toLowerCase()}
-                  </td>
-                  <td className="capitalize border p-2">
-                    {fine.surname?.toLowerCase()}
-                  </td>
-
-                  <td className="capitalize border p-2 ">
-                    {fine.bookAuthor
-                      ? fine.bookAuthor.length > 20
-                        ? fine.bookAuthor.slice(0, 20) + "..."
-                        : fine.bookAuthor
-                      : "-"}
-                  </td>
-                  <td className="capitalize border p-2 ">
-                    {fine.bookTitle
-                      ? fine.bookTitle.length > 30
-                        ? fine.bookTitle.slice(0, 30) + "..."
-                        : fine.bookTitle
-                      : "-"}
-                  </td>
-                  <td className="capitalize border p-2 text-center">
-                    {fine.type === FineType.LOST
-                      ? "Yo‘qotilgan"
-                      : fine.type === FineType.DAMAGE
-                        ? "Shikastlangan"
-                        : fine.type === FineType.OVERDUE
-                          ? "Kechiktirilgan"
-                          : "Shikastlanmagan"}
-                  </td>
-                  <td className="capitalize border p-2 text-center">
-                    {fine.amount} so'm
-                  </td>
-                  <td className="capitalize border p-2 text-center">
-                    {fine.resolved ? "To'lov qilindi" : "To'lov qilinmadi"}
-                  </td>
-                  <td className="capitalize border p-2 text-center">
-                    {fine.createdAt}
-                  </td>
-                  <td className="capitalize border p-2 text-center">
-                    <ActionColumns fine={fine} onSuccess={() => {}} />
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={10} className="p-4 text-center">
-                  Ma’lumot topilmadi
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
 
       <EditPenaltyRateModal
         open={modalOpen}
         onOpenChange={setModalOpen}
         currentRate={activeRate?.pricePerDay}
       />
-
-      {/* Pagination */}
-      <div className="flex items-center gap-4">
-        <button
-          className="border px-3 py-1 rounded disabled:opacity-50"
-          disabled={page === 1}
-          onClick={() => setPage((p) => p - 1)}
-        >
-          Prev
-        </button>
-        <button
-          className="border px-3 py-1 rounded disabled:opacity-50"
-          onClick={() => setPage((p) => (p = 1))}
-        >
-          1
-        </button>
-
-        {fines?.totalPages > 2 && (
-          <button
-            className="border px-3 py-1 rounded disabled:opacity-50"
-            onClick={() => setPage((p) => (p = 2))}
-          >
-            2
-          </button>
-        )}
-
-        <span>
-          {page} / {fines?.totalPages || 1}
-        </span>
-        {fines?.totalPages > 2 && (
-          <button
-            className="border px-3 py-1 rounded disabled:opacity-50"
-            onClick={() => setPage((p) => (p = 2))}
-          >
-            {fines?.totalPages - 1}
-          </button>
-        )}
-        {fines?.totalPages > 1 && (
-          <button
-            className="border px-3 py-1 rounded disabled:opacity-50"
-            onClick={() => setPage((p) => (p = 2))}
-          >
-            {fines?.totalPages}
-          </button>
-        )}
-        <button
-          className="border px-3 py-1 rounded disabled:opacity-50"
-          disabled={page === (fines?.totalPages || 1)}
-          onClick={() => setPage((p) => p + 1)}
-        >
-          Next
-        </button>
-      </div>
     </div>
   );
 }
