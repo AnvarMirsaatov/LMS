@@ -17,7 +17,7 @@ import {
 import { useState } from "react";
 import { Fine, FineType } from "@/types/fine";
 import { useTranslations } from "next-intl";
-import { DeletePenaltiesModal, FineSheet } from "./paymentModal";
+import { FineSheet } from "./paymentModal";
 
 interface ActionColumnsProps {
   fine: Fine;
@@ -32,10 +32,8 @@ export function ActionColumns({ fine, onSuccess }: ActionColumnsProps) {
   const [paymentOpen, setPaymentOpen] = useState(false);
   const [viewingDetail, setViewingDetail] = useState<Fine | null>(null);
   const [viewingPayment, setViewingPayment] = useState<Fine | null>(null);
-  const [deletePenelty, setdeletePenelty] = useState(false);
-  const [viewingPaymentFree, setViewingPaymentFree] = useState<Fine | null>(
-    null,
-  );
+  // const [deletePenelty, setdeletePenelty] = useState(false);
+  // const [viewingPaymentFree, setViewingPaymentFree] = useState<Fine | null>(null,);
 
   return (
     <div className="flex gap-2 justify-center">
@@ -71,7 +69,7 @@ export function ActionColumns({ fine, onSuccess }: ActionColumnsProps) {
               To'lov qilindi
             </DropdownMenuItem>
 
-            {fine.type === FineType.OVERDUE && (
+            {/* {fine.type === FineType.OVERDUE && (
               <DropdownMenuItem
                 className="hover:bg-gray-200 p-1"
                 style={{ cursor: "pointer" }}
@@ -82,7 +80,7 @@ export function ActionColumns({ fine, onSuccess }: ActionColumnsProps) {
               >
                 {"Jarimani o'chirish"}
               </DropdownMenuItem>
-            )}
+            )} */}
           </DropdownMenuContent>
         </DropdownMenu>
       )}
@@ -177,14 +175,14 @@ export function ActionColumns({ fine, onSuccess }: ActionColumnsProps) {
         fineProps={viewingPayment}
         title="Jarimani hal qilish"
       />
-      {deletePenelty && (
+      {/* {deletePenelty && (
         <DeletePenaltiesModal
           open={deletePenelty}
           onOpenChange={setdeletePenelty}
           fineProps={viewingPaymentFree}
           title="Sababli kechiktirilgan kitibni jarimasini bekor qilish"
         />
-      )}
+      )} */}
     </div>
   );
 }

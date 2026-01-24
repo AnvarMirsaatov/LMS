@@ -133,42 +133,49 @@ export const useResendActivationCode = () => {
   });
 };
 
-//kechiktirilgan jarimani pul berish orqali tolash API
-interface SettleFineMoneyPayload {
+// * Yo'qolgan kitoblar jarimasini to'lash (LOST)
+
+interface SettleFinePayload {
   paymentType: string;
   comment?: string;
 }
+
+type FineType = "revert" | "money" | "book-replacement" | "cancel";
 
 export const useSettleFineMoney = (fineId: number | string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: SettleFineMoneyPayload) => {
-      const res = await api.post(
-        `/admin/fine/settlement/money/${fineId}`,
-        data,
-      );
-      return res.data;
-    },
-    onSuccess: () => {
-      // jarimalar yoki fines listi bo‘lsa
-      queryClient.invalidateQueries({ queryKey: ["fines"] });
-    },
-  });
-};
+    mutationFn: async ({
+      type,
+      data,
+    }: {
+      type: FineType;
+      data?: SettleFinePayload;
+    }) => {
+      let endpoint = "";
 
-//sababli kechiktirilgan jarimani bekor qilish API
-interface SettleFineMoneyPayload {
-  paymentType: string;
-  comment?: string;
-}
+      switch (type) {
+        case "revert":
+          endpoint = `/admin/fine/settlement/revert/${fineId}`;
+          break;
 
-export const useDeletePenalties = (fineId: number) => {
-  const queryClient = useQueryClient();
+        case "money":
+          endpoint = `/admin/fine/settlement/money/${fineId}`;
+          break;
 
-  return useMutation({
-    mutationFn: async (data: { comment: string }) => {
-      const res = await api.post(`/admin/fine/${fineId}/delete`, data);
+        case "book-replacement":
+          endpoint = `/admin/fine/settlement/book-replacement/${fineId}`;
+          break;
+        case "book-replacement":
+          endpoint = `/admin/fine/settlement/cancel/${fineId}`;
+          break;
+
+        default:
+          throw new Error("Invalid settlement type");
+      }
+      const res = await api.post(endpoint, data ?? {});
+
       return res.data;
     },
     onSuccess: () => {

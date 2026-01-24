@@ -1,9 +1,5 @@
 "use client";
-
-import {
-  useDeletePenalties,
-  useSettleFineMoney,
-} from "@/components/models/queries/admin";
+import { useSettleFineMoney } from "@/components/models/queries/admin";
 import {
   Sheet,
   SheetContent,
@@ -11,7 +7,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Fine, FineType } from "@/types/fine";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 interface FineSheetProps {
   open: boolean;
@@ -26,12 +22,6 @@ export function FineSheet({
   fineProps,
   title,
 }: FineSheetProps) {
-  interface FineSheetProps {
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
-    fineProps?: Fine | null;
-    title: string;
-  }
   const [paymentType, setPaymentType] = useState("Naqd pul");
   const [comment, setComment] = useState("");
 
@@ -39,22 +29,59 @@ export function FineSheet({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!fineProps) return;
 
-    mutate(
-      {
-        paymentType,
-        comment,
-      },
-      {
-        onSuccess: () => {
-          onOpenChange(false); // sheet yopiladi
-          setComment("");
+    if (fineProps.type) {
+      // LOST uchun tanlangan variant bo'yicha
+      let type: "revert" | "money" | "book-replacement" | "cancel" = "money";
+
+      switch (paymentType) {
+        case "Naqd pul":
+          type = "money";
+          break;
+        case "Plastik karta":
+          type = "money";
+          break;
+        case "Sababli kechiktirilgan jarimani o'chirish":
+          type = "money";
+          break;
+          
+        case "Kitobni o‘zini topib topshirdi":
+          type = "revert";
+          break;
+        case "Kitobni qiymatini to‘ladi":
+          type = "money";
+          break;
+        case "Boshqa kitob bilan to‘ladi":
+          type = "book-replacement";
+          break;
+        case "Sababli kechiktirilgan jarimani o'chirish":
+          type = "cancel";
+          break;
+
+        default:
+          return; // variant tanlanmagan bo‘lsa yubormaymiz
+      }
+      console.log("bosildi");
+
+      mutate(
+        {
+          type,
+          data: type === "money" ? { paymentType, comment } : undefined,
         },
-      },
-    );
+        {
+          onSuccess: () => {
+            onOpenChange(false);
+            setComment("");
+            setPaymentType("");
+          },
+        },
+      );
+    }
   };
+
+  console.log(fineProps);
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="bg-white dark:bg-background w-fit" side="center">
@@ -74,11 +101,16 @@ export function FineSheet({
                     <select
                       className="border rounded p-2 w-full"
                       value={paymentType}
-                      onChange={(e) => setPaymentType(e.target.value)}
+                      onChange={(e) => {
+                        return setPaymentType(e.target.value);
+                      }}
                     >
                       <option value="Naqd pul">Naqd pul</option>
                       <option value="Plastik karta">Plastik karta</option>
                       <option value="Onlayn to'lov">Onlayn to'lov</option>
+                      <option value="Sababli kechiktirilgan jarimani o'chirish">
+                        Sababli kechiktirilgan jarimani o'chirish
+                      </option>
                     </select>
 
                     <textarea
@@ -91,7 +123,7 @@ export function FineSheet({
                     <button
                       type="submit"
                       disabled={isPending}
-                      className="bg-green-600 text-white px-4 py-2 rounded disabled:opacity-60"
+                      className="bg-green-600 text-white px-4 py-2 rounded disabled:opacity-60 z-index-5"
                     >
                       {isPending ? "Yuborilmoqda..." : "Tasdiqlash"}
                     </button>
@@ -99,11 +131,13 @@ export function FineSheet({
                 )}
               </div>
             )}
-
-            {(fineProps.type === FineType.LOST ||
-              fineProps.type === FineType.DAMAGE) && (
-              <form action="" className="space-y-4 text-center">
-                <select className="border rounded p-2 w-full">
+            {fineProps.type === FineType.LOST && (
+              <form onSubmit={handleSubmit} className="space-y-4 text-center">
+                <select
+                  className="border rounded p-2 w-full"
+                  value={paymentType}
+                  onChange={(e) => setPaymentType(e.target.value)}
+                >
                   <option value="Kitobni o‘zini topib topshirdi">
                     Kitobni o‘zini topib topshirdi
                   </option>
@@ -115,13 +149,47 @@ export function FineSheet({
                   </option>
                 </select>
                 <textarea
-                  name=""
                   placeholder="Tafsilotini kiriting"
                   className="w-full border rounded p-2"
-                  id=""
-                ></textarea>
+                  value={comment} // <-- value bog‘landi
+                  onChange={(e) => setComment(e.target.value)} // <-- onChange bog‘landi
+                />
+
                 <button
-                  type="button"
+                  type="submit"
+                  disabled={isPending || !paymentType}
+                  className="bg-green-600 text-white px-4 py-2 rounded disabled:opacity-60"
+                >
+                  {isPending ? "Yuborilmoqda..." : "Tasdiqlash"}
+                </button>
+              </form>
+            )}
+            {fineProps.type === FineType.DAMAGE && (
+              <form onSubmit={handleSubmit} className="space-y-4 text-center">
+                <select
+                  className="border rounded p-2 w-full"
+                  value={paymentType}
+                  onChange={(e) => setPaymentType(e.target.value)}
+                >
+                  {" "}
+                  <option value="Kitobni o‘zini topib topshirdi">
+                    Kitobni o‘zini topib topshirdi
+                  </option>
+                  <option value="Boshqa kitob bilan to‘ladi">
+                    Boshqa kitob bilan to‘ladi
+                  </option>
+                  <option value="Kitobni qiymatini to‘ladi">
+                    Kitobni qiymatini to‘ladi
+                  </option>
+                </select>
+                <textarea
+                  placeholder="Tafsilotini kiriting"
+                  className="w-full border rounded p-2"
+                  value={comment} // <-- value bog‘landi
+                  onChange={(e) => setComment(e.target.value)} // <-- onChange bog‘landi
+                />
+                <button
+                  type="submit"
                   className="bg-green-600 text-white px-4 py-2 rounded"
                 >
                   Tasdiqlash
@@ -129,8 +197,12 @@ export function FineSheet({
               </form>
             )}
             {fineProps.type === FineType.IRREPARABLE_DAMAGE && (
-              <form action="" className="space-y-4 text-center">
-                <select className="border rounded p-2 w-full">
+              <form onSubmit={handleSubmit} className="space-y-4 text-center">
+                <select
+                  className="border rounded p-2 w-full"
+                  value={paymentType}
+                  onChange={(e) => setPaymentType(e.target.value)}
+                >
                   <option value="Kitobni qiymatini to‘ladi">
                     Kitobni qiymatini to‘ladi
                   </option>
@@ -138,17 +210,20 @@ export function FineSheet({
                     Boshqa kitob bilan to‘ladi
                   </option>
                 </select>
+
                 <textarea
-                  name=""
                   placeholder="Tafsilotini kiriting"
                   className="w-full border rounded p-2"
-                  id=""
-                ></textarea>
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                />
+
                 <button
-                  type="button"
-                  className="bg-green-600 text-white px-4 py-2 rounded"
+                  type="submit"
+                  disabled={isPending || !paymentType}
+                  className="bg-green-600 text-white px-4 py-2 rounded disabled:opacity-60"
                 >
-                  Tasdiqlash
+                  {isPending ? "Yuborilmoqda..." : "Tasdiqlash"}
                 </button>
               </form>
             )}
@@ -158,67 +233,3 @@ export function FineSheet({
     </Sheet>
   );
 }
-
-
-interface FineSheetProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  fineProps?: Fine | null;
-  title: string;
-}
-
-export function DeletePenaltiesModal({
-  open,
-  onOpenChange,
-  fineProps,
-  title,
-}: FineSheetProps) {
-  if (!fineProps) return null;
-
-  const { mutate, isPending } = useDeletePenalties(fineProps.id);
-  const [comment, setComment] = useState("");
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    mutate(
-      { comment },
-      {
-        onSuccess: () => {
-          onOpenChange(false);
-          setComment("");
-        },
-      }
-    );
-  };
-
-  return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="bg-white dark:bg-background w-fit" side="center">
-        <SheetHeader>
-          <SheetTitle>{title}</SheetTitle>
-        </SheetHeader>
-
-        <div className="mt-4 space-y-4">
-          <form onSubmit={handleSubmit} className="space-y-4 text-center">
-            <textarea
-              placeholder="Tafsilotini kiriting"
-              className="w-full border rounded p-2"
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-            />
-
-            <button
-              type="submit"
-              disabled={isPending}
-              className="bg-green-600 text-white px-4 py-2 rounded disabled:opacity-60"
-            >
-              {isPending ? "Yuborilmoqda..." : "Tasdiqlash"}
-            </button>
-          </form>
-        </div>
-      </SheetContent>
-    </Sheet>
-  );
-}
-
