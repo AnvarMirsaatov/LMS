@@ -18,13 +18,20 @@ import { Tabs } from "@/components/ui/tabs";
 interface PenaltiesClientProps {
   slug?: string;
 }
+export type FineTypeFilter =
+  | "all"
+  | "LOST"
+  | "OVERDUE"
+  | "DAMAGE"
+  | "IRREPARABLE_DAMAGE";
+
 export default function PenaltiesClient({ slug }: PenaltiesClientProps) {
   const t = useTranslations();
 
-  const [filter, setFilter] = useState<FilterType>("all");
-  const [searchField, setSearchField] = useState<"fullName" | "cardNumber">(
-    "fullName",
-  );
+  const [filter, setFilter] = useState<FineTypeFilter>("all");
+  // const [searchField, setSearchField] = useState<"fullName" | "cardNumber">(
+  //   "fullName",
+  // );
   const [firstQuery, setFirstQuery] = useState("");
   const [secondQuery, setSecondQuery] = useState("");
   const [searchValue, setSearchValue] = useState("");
@@ -43,18 +50,24 @@ export default function PenaltiesClient({ slug }: PenaltiesClientProps) {
   const [pageNumber, setPageNum] = useState<number>(
     Number(searchPagination.get("page")) || 1,
   );
-  const handlePageChange = (newPage: number) => {
-    setPageNum(newPage);
+  // const handlePageChange = (newPage: number) => {
+  //   setPageNum(newPage);
 
+  //   const params = new URLSearchParams(window.location.search);
+  //   params.set("page", newPage.toString());
+
+  //   if (appliedQuery.query) {
+  //     params.set("query", appliedQuery.query);
+  //   } else {
+  //     params.delete("query");
+  //   }
+
+  //   router.push(`?${params.toString()}`);
+  // };
+
+  const handlePageChange = (newPage: number) => {
     const params = new URLSearchParams(window.location.search);
     params.set("page", newPage.toString());
-
-    if (appliedQuery.query) {
-      params.set("query", appliedQuery.query);
-    } else {
-      params.delete("query");
-    }
-
     router.push(`?${params.toString()}`);
   };
 
@@ -78,35 +91,23 @@ export default function PenaltiesClient({ slug }: PenaltiesClientProps) {
     const surname = secondQuery.trim().toUpperCase();
 
     if (!name && !surname) return {};
-
-    // faqat ism
     if (name && !surname) {
       return {
         field: "fullName",
         query: `${name}~`,
       };
     }
-
-    // faqat familiya
     if (!name && surname) {
       return {
         field: "fullName",
         query: `~${surname}`,
       };
     }
-
-    // ikkalasi bor
     return {
       field: "fullName",
       query: `${name}~${surname}`,
     };
   }, [firstQuery, secondQuery]);
-
-  // const onEnterSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
-  //   if (e.key === "Enter") {
-  //     triggerSearch();
-  //   }
-  // };
 
   const {
     data: fines = {
@@ -121,6 +122,7 @@ export default function PenaltiesClient({ slug }: PenaltiesClientProps) {
     pageNumber,
     pageSize,
     sortDirection: "desc",
+    ...(filter !== "all" && { type: filter }),
     ...appliedQuery,
   });
 
@@ -229,6 +231,15 @@ export default function PenaltiesClient({ slug }: PenaltiesClientProps) {
     params.set("page", "1");
     router.push(`?${params.toString()}`);
   }, [pageSize]);
+  const typeFromUrl = searchParams.get("type") as FineTypeFilter | null;
+
+  useEffect(() => {
+    if (typeFromUrl) {
+      setFilter(typeFromUrl);
+    }
+  }, [typeFromUrl]);
+
+  console.log(fines.data);
 
   return (
     <div className="space-y-6 p-2 bg-white rounded-md">
@@ -257,42 +268,42 @@ export default function PenaltiesClient({ slug }: PenaltiesClientProps) {
               <div className="flex-1 rounded-full shadow-lg p-1 flex items-center gap-2 bg-white dark:bg-gray-900">
                 {/* Filter Dropdown */}
                 {/* <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <TooltipBtn
-                      className="flex-shrink-0 mr-1 p-2.5 rounded-full transition-colors"
-                      title={"Filter"}
-                    >
-                      <Settings2 size={18} />
-                    </TooltipBtn>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" className="w-56">
-                    <DropdownMenuItem
-                      onClick={() => {
-                        setSearchField("cardNumber");
-                        setSearchValue("");
-                        setFirstQuery("");
-                        setSecondQuery("");
-                      }}
-                      className={
-                        searchField === "cardNumber" ? "bg-blue-50" : ""
-                      }
-                    >
-                      {t("Card number")}
-                    </DropdownMenuItem>
+                    <DropdownMenuTrigger asChild>
+                      <TooltipBtn
+                        className="flex-shrink-0 mr-1 p-2.5 rounded-full transition-colors"
+                        title={"Filter"}
+                      >
+                        <Settings2 size={18} />
+                      </TooltipBtn>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="w-56">
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setSearchField("cardNumber");
+                          setSearchValue("");
+                          setFirstQuery("");
+                          setSecondQuery("");
+                        }}
+                        className={
+                          searchField === "cardNumber" ? "bg-blue-50" : ""
+                        }
+                      >
+                        {t("Card number")}
+                      </DropdownMenuItem>
 
-                    <DropdownMenuItem
-                      onClick={() => {
-                        setSearchField("fullName");
-                        setSearchValue("");
-                        setFirstQuery("");
-                        setSecondQuery("");
-                      }}
-                      className={searchField === "fullName" ? "bg-blue-50" : ""}
-                    >
-                      {t("Name and last name search")}
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu> */}
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setSearchField("fullName");
+                          setSearchValue("");
+                          setFirstQuery("");
+                          setSecondQuery("");
+                        }}
+                        className={searchField === "fullName" ? "bg-blue-50" : ""}
+                      >
+                        {t("Name and last name search")}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu> */}
 
                 {/* Search Inputs */}
                 <div className="flex-1 flex items-center gap-3 px-1 flex-wrap">
@@ -317,12 +328,12 @@ export default function PenaltiesClient({ slug }: PenaltiesClientProps) {
                   </>
                   {/* ) : ( */}
                   {/* <input
-                      type="text"
-                      placeholder={t("Search")}
-                      value={searchValue}
-                      onChange={(e) => setSearchValue(e.target.value)}
-                      className="w-90 flex-1 bg-transparent outline-none text-gray-700 placeholder-gray-400 text-sm dark:text-white"
-                    /> */}
+                        type="text"
+                        placeholder={t("Search")}
+                        value={searchValue}
+                        onChange={(e) => setSearchValue(e.target.value)}
+                        className="w-90 flex-1 bg-transparent outline-none text-gray-700 placeholder-gray-400 text-sm dark:text-white"
+                      /> */}
                   {/* )} */}
                 </div>
                 <TooltipBtn title={t("Search")} onClick={triggerSearch}>
@@ -330,39 +341,72 @@ export default function PenaltiesClient({ slug }: PenaltiesClientProps) {
                 </TooltipBtn>
               </div>
             </div>
+            {/* <Tabs
+                value={filter}
+                onValueChange={(val) => {
+                  setFilter(val as any);
+                  setPageNum(1);
+                  setAppliedQuery({});
+
+                  const params = new URLSearchParams(window.location.search);
+                  params.set("page", "1");
+                  params.delete("query");
+
+                  router.push(`?${params.toString()}`);
+                }}
+              >
+                <TabsList className="flex gap-2">
+                  <TabsTrigger
+                    value="all"
+                    className="data-[state=active]:bg-green-600 px-2 py-1 rounded-lg data-[state=active]:text-white"
+                  >
+                    {t("All")}
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="resolved"
+                    className="data-[state=active]:bg-green-600 px-2 py-1 rounded-lg data-[state=active]:text-white"
+                  >
+                    To'lov qilingan
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="unresolved"
+                    className="data-[state=active]:bg-green-600 px-2 py-1 rounded-lg data-[state=active]:text-white"
+                  >
+                    To'lov qilinmagan
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs> */}
             <Tabs
               value={filter}
               onValueChange={(val) => {
-                setFilter(val as any);
-                setPageNum(1);
-                setAppliedQuery({});
+                const nextFilter = val as FineTypeFilter;
+
+                setFilter(nextFilter);
 
                 const params = new URLSearchParams(window.location.search);
                 params.set("page", "1");
+
+                if (nextFilter === "all") {
+                  params.delete("type");
+                } else {
+                  params.set("type", nextFilter);
+                }
+
                 params.delete("query");
 
                 router.push(`?${params.toString()}`);
               }}
             >
               <TabsList className="flex gap-2">
-                <TabsTrigger
-                  value="all"
-                  className="data-[state=active]:bg-green-600 px-2 py-1 rounded-lg data-[state=active]:text-white"
-                >
-                  {t("All")}
-                </TabsTrigger>
-                <TabsTrigger
-                  value="resolved"
-                  className="data-[state=active]:bg-green-600 px-2 py-1 rounded-lg data-[state=active]:text-white"
-                >
-                  To'lov qilingan
-                </TabsTrigger>
-                <TabsTrigger
-                  value="unresolved"
-                  className="data-[state=active]:bg-green-600 px-2 py-1 rounded-lg data-[state=active]:text-white"
-                >
-                  To'lov qilinmagan
-                </TabsTrigger>
+                <TabsTrigger value="all">Barchasi</TabsTrigger>
+
+                <TabsTrigger value="LOST">Yo‘qotilgan</TabsTrigger>
+
+                <TabsTrigger value="OVERDUE">Kechiktirilgan</TabsTrigger>
+
+                <TabsTrigger value="DAMAGE">Shikastlangan</TabsTrigger>
+
+                <TabsTrigger value="IRREPARABLE_DAMAGE">Yaroqsiz</TabsTrigger>
               </TabsList>
             </Tabs>
           </div>

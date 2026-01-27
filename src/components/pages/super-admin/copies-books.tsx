@@ -279,11 +279,7 @@ export const CopiesBooks = () => {
         dataIndex: "isTaken",
         render: (value: boolean) => (
           <div className="flex items-center justify-start">
-            {value ? (
-              <BookOpenCheck className="text-green-600 w-5 h-5" />
-            ) : (
-              <BookMinus className="text-red-500 w-5 h-5" />
-            )}
+         <p>anvar</p>
           </div>
         ),
       },

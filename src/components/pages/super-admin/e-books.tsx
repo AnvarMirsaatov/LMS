@@ -597,110 +597,113 @@ const EBaseBooks = () => {
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
                 </div>
               ) : getById.data?.data ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <Image
-                      height={400}
-                      width={"100%"}
-                      src={getById.data.data.imageUrl || "/placeholder.svg"}
-                      alt={getById.data.data.title}
-                      className="w-full h-[200px] object-cover bg-center rounded-lg shadow-lg"
-                    />
-                    <div className="text-center">
-                      <AntButton
-                        onClick={() =>
-                          window.open(getById.data.data.pdfUrl, "_blank")
-                        }
-                        className="w-full"
-                        type="primary"
-                      >
-                        {t("Open PDF")}
-                      </AntButton>
+                <div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <Image
+                        height={400}
+                        width={"100%"}
+                        src={getById.data.data.imageUrl || "/placeholder.svg"}
+                        alt={getById.data.data.title}
+                        className="w-full h-[200px] object-cover bg-center rounded-lg shadow-lg"
+                      />
+                    </div>
+
+                    <div className="space-y-4 grid grid-cols-1 sm:grid-cols-2">
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">
+                          {t("Title")}
+                        </h3>
+                        <p className="text-xl font-bold">
+                          {getById.data.data.title}
+                        </p>
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">
+                          {t("Author")}
+                        </h3>
+                        <p>{getById.data.data.author}</p>
+                      </div>
+
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">
+                          {t("Category")}
+                        </h3>
+                        <p>{getById.data.data.categoryPreview?.name}</p>
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                          {t("Publication Year")}
+                        </h3>
+                        <p>{getById.data.data.publicationYear}</p>
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                          {t("Page Count")}
+                        </h3>
+                        <p>{getById.data.data.pageCount}</p>
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                          {t("Language")}
+                        </h3>
+                        <p>{getById.data.data.language}</p>
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                          {t("script")}
+                        </h3>
+                        <p>{getById.data.data.script}</p>
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                          {t("Publisher")}
+                        </h3>
+                        <p>{getById.data.data.publisher}</p>
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                          {t("Isbn")}
+                        </h3>
+                        <p>{getById.data.data.isbn}</p>
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                          {t("size")}
+                        </h3>
+                        <p>{getById.data.data.size} MB</p>
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                          {t("createdAt")}
+                        </h3>
+                        <p>
+                          {dayjs(getById.data.data.createdDate).format(
+                            "DD-MM-YYYY",
+                          )}
+                        </p>
+                      </div>
                     </div>
                   </div>
+                  <div className="w-full mt-2">
+                    <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                      {t("Description")}
+                    </h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                      {getById.data.data.description}
+                    </p>
+                  </div>
 
-                  <div className="space-y-4 grid grid-cols-1 sm:grid-cols-2">
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">
-                        {t("Title")}
-                      </h3>
-                      <p className="text-xl font-bold">
-                        {getById.data.data.title}
-                      </p>
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">
-                        {t("Author")}
-                      </h3>
-                      <p>{getById.data.data.author}</p>
-                    </div>
-
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">
-                        {t("Category")}
-                      </h3>
-                      <p>{getById.data.data.categoryPreview?.name}</p>
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                        {t("Publication Year")}
-                      </h3>
-                      <p>{getById.data.data.publicationYear}</p>
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                        {t("Page Count")}
-                      </h3>
-                      <p>{getById.data.data.pageCount}</p>
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                        {t("Language")}
-                      </h3>
-                      <p>{getById.data.data.language}</p>
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                        {t("script")}
-                      </h3>
-                      <p>{getById.data.data.script}</p>
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                        {t("Publisher")}
-                      </h3>
-                      <p>{getById.data.data.publisher}</p>
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                        {t("Isbn")}
-                      </h3>
-                      <p>{getById.data.data.isbn}</p>
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                        {t("size")}
-                      </h3>
-                      <p>{getById.data.data.size} MB</p>
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                        {t("createdAt")}
-                      </h3>
-                      <p>
-                        {dayjs(getById.data.data.createdDate).format(
-                          "DD-MM-YYYY",
-                        )}
-                      </p>
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                        {t("Description")}
-                      </h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-                        {getById.data.data.description}
-                      </p>
-                    </div>
+                  <div className="text-center mt-2">
+                    <AntButton
+                      onClick={() =>
+                        window.open(getById.data.data.pdfUrl, "_blank")
+                      }
+                      className="w-full"
+                      type="primary"
+                    >
+                      {t("Open PDF")}
+                    </AntButton>
                   </div>
                 </div>
               ) : (

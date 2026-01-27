@@ -42,10 +42,12 @@ export function FineSheet({
         case "Plastik karta":
           type = "money";
           break;
+        case "Onlayn to'lov":
+          type = "money";
+          break;
         case "Sababli kechiktirilgan jarimani o'chirish":
           type = "money";
           break;
-          
         case "Kitobni o‘zini topib topshirdi":
           type = "revert";
           break;
@@ -91,45 +93,38 @@ export function FineSheet({
 
         {!fineProps ? null : (
           <div className="mt-4 space-y-4">
-            {!fineProps ? null : (
-              <div className="mt-4 space-y-4">
-                {fineProps.type === FineType.OVERDUE && (
-                  <form
-                    onSubmit={handleSubmit}
-                    className="space-y-4 text-center"
-                  >
-                    <select
-                      className="border rounded p-2 w-full"
-                      value={paymentType}
-                      onChange={(e) => {
-                        return setPaymentType(e.target.value);
-                      }}
-                    >
-                      <option value="Naqd pul">Naqd pul</option>
-                      <option value="Plastik karta">Plastik karta</option>
-                      <option value="Onlayn to'lov">Onlayn to'lov</option>
-                      <option value="Sababli kechiktirilgan jarimani o'chirish">
-                        Sababli kechiktirilgan jarimani o'chirish
-                      </option>
-                    </select>
+            {fineProps.type === FineType.OVERDUE && (
+              <form onSubmit={handleSubmit} className="space-y-4 text-center">
+                <select
+                  className="border rounded p-2 w-full"
+                  value={paymentType}
+                  onChange={(e) => {
+                    return setPaymentType(e.target.value);
+                  }}
+                >
+                  <option value="Naqd pul">Naqd pul</option>
+                  <option value="Plastik karta">Plastik karta</option>
+                  <option value="Onlayn to'lov">Onlayn to'lov</option>
+                  <option value="Sababli kechiktirilgan jarimani o'chirish">
+                    Sababli kechiktirilgan jarimani o'chirish
+                  </option>
+                </select>
 
-                    <textarea
-                      placeholder="Tafsilotini kiriting"
-                      className="w-full border rounded p-2"
-                      value={comment}
-                      onChange={(e) => setComment(e.target.value)}
-                    />
+                <textarea
+                  placeholder="Tafsilotini kiriting"
+                  className="w-full border rounded p-2"
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                />
 
-                    <button
-                      type="submit"
-                      disabled={isPending}
-                      className="bg-green-600 text-white px-4 py-2 rounded disabled:opacity-60 z-index-5"
-                    >
-                      {isPending ? "Yuborilmoqda..." : "Tasdiqlash"}
-                    </button>
-                  </form>
-                )}
-              </div>
+                <button
+                  type="submit"
+                  disabled={isPending}
+                  className="bg-green-600 text-white px-4 py-2 rounded disabled:opacity-60 z-index-5"
+                >
+                  {isPending ? "Yuborilmoqda..." : "Tasdiqlash"}
+                </button>
+              </form>
             )}
             {fineProps.type === FineType.LOST && (
               <form onSubmit={handleSubmit} className="space-y-4 text-center">

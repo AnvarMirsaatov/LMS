@@ -32,9 +32,6 @@ export function ActionColumns({ fine, onSuccess }: ActionColumnsProps) {
   const [paymentOpen, setPaymentOpen] = useState(false);
   const [viewingDetail, setViewingDetail] = useState<Fine | null>(null);
   const [viewingPayment, setViewingPayment] = useState<Fine | null>(null);
-  // const [deletePenelty, setdeletePenelty] = useState(false);
-  // const [viewingPaymentFree, setViewingPaymentFree] = useState<Fine | null>(null,);
-
   return (
     <div className="flex gap-2 justify-center">
       {/* DETAIL */}
