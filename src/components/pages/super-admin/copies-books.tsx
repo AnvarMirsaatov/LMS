@@ -148,6 +148,7 @@ export const CopiesBooks = () => {
     sortDirection,
     filter,
   });
+  console.log("searchQuery", copiesBooks);
 
   useEffect(() => {
     const bookId = searchParams.get("bookId");
@@ -173,27 +174,6 @@ export const CopiesBooks = () => {
       router.replace(`${pathname}?${params.toString()}`);
     }
   }, [searchQuery, searchParams, pathname, router]);
-
-  // --- buildSearchParams ga yuborish uchun
-  // useEffect(() => {
-  //   if (searchField === "fullInfo" || searchField === "fullName") {
-  //     if (firstQuery || secondQuery) {
-  //       setDebouncedSearchQuery(
-  //         `${firstQuery}${secondQuery ? `~${secondQuery}` : ""}`,
-  //       );
-  //     } else {
-  //       setDebouncedSearchQuery("");
-  //     }
-  //   } else {
-  //     const timer = setTimeout(() => {
-  //       setDebouncedSearchQuery(searchQuery);
-  //       if (searchQuery !== debouncedSearchQuery) {
-  //         setPageNum(1);
-  //       }
-  //     }, 500);
-  //     return () => clearTimeout(timer);
-  //   }
-  // }, [searchQuery, firstQuery, secondQuery, searchField]);
 
   const columns = useMemo<IColumn[]>(
     () => [
@@ -277,9 +257,12 @@ export const CopiesBooks = () => {
         title: t("status"),
         key: "isTaken",
         dataIndex: "isTaken",
-        render: (value: boolean) => (
+        // render: (value: string) => (
+        //     <p>{value ?? "--"}</p>
+        // ),
+        render: (_: any, record: any) => (
           <div className="flex items-center justify-start">
-         <p>anvar</p>
+            <p>{record.status}</p>
           </div>
         ),
       },
@@ -417,14 +400,6 @@ export const CopiesBooks = () => {
     params.set("page", pageNum.toString());
     router.push(`?${params.toString()}`);
   }, [pageNum]);
-
-  // const searchFieldOptions = [
-  //   { value: "inventoryNumber", label: t("Inventory Number") },
-  //   { value: "book", label: t("Book") },
-  //   { value: "fullInfo", label: t("Full Info") },
-  //   { value: "epc", label: t("epc") },
-  //   { value: "fullName", label: t("Full name") },
-  // ];
 
   const [submitting, setSubmitting] = useState(false);
 
