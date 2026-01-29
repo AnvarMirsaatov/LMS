@@ -5,7 +5,7 @@ export enum FineType {
   IRREPARABLE_DAMAGE = "IRREPARABLE_DAMAGE",
 }
 
-export interface Fine {
+export interface  Fine {
   id: number;
   name?: string;
   surname?: string;

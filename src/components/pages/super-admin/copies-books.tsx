@@ -257,9 +257,6 @@ export const CopiesBooks = () => {
         title: t("status"),
         key: "isTaken",
         dataIndex: "isTaken",
-        // render: (value: string) => (
-        //     <p>{value ?? "--"}</p>
-        // ),
         render: (_: any, record: any) => (
           <div className="flex items-center justify-start">
             <p>{record.status}</p>
@@ -519,7 +516,7 @@ export const CopiesBooks = () => {
                   <DropdownMenuTrigger asChild>
                     <TooltipBtn
                       className="flex-shrink-0 mr-1 p-2.5 rounded-full transition-colors"
-                      title={t("Filter")}
+                      title="Filter"
                     >
                       <Settings2 size={18} />
                     </TooltipBtn>

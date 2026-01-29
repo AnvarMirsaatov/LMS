@@ -380,7 +380,7 @@ export default function ActiveBookingsPage() {
               {/* start */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <TooltipBtn title={"Jarima yaratish"}>
+                  <TooltipBtn title={"Qo'shimcha amallar"}>
                     <EllipsisVertical />
                   </TooltipBtn>
                 </DropdownMenuTrigger>
@@ -393,7 +393,7 @@ export default function ActiveBookingsPage() {
                       setPaymentOpen(true);
                     }}
                   >
-                    Jarima yaratish
+                    Qo'shimcha amallar
                   </DropdownMenuItem>
                 </DropdownMenuContent>
                 {/* end */}
@@ -658,7 +658,7 @@ export default function ActiveBookingsPage() {
                       value="APPROVED"
                       className="data-[state=active]:bg-green-600 data-[state=active]:text-white"
                     >
-                      {t("APPROVED")}
+                      Faol
                     </TabsTrigger>
                     <TabsTrigger
                       value="OVERDUE"
@@ -985,7 +985,7 @@ export default function ActiveBookingsPage() {
       <CreatePenaltyModal
         open={paymentOpen}
         onOpenChange={setPaymentOpen}
-        title="Jarima yaratish"
+        title="Qo'shimcha amallar"
         fineProps={selectedBookingForPenalty}
       />
     </div>

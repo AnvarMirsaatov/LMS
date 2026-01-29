@@ -9,6 +9,7 @@ import {
 import { Fine } from "@/types/fine";
 import { usePenaltyCreate } from "@/components/models/queries/admin";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface CreatePenaltyModalProps {
   open: boolean;
@@ -31,6 +32,7 @@ export function CreatePenaltyModal({
   const [details, setDetails] = useState("");
   const { mutate, isLoading } = usePenaltyCreate();
   const createPenalty = { mutate, isLoading };
+  const queryClient = useQueryClient();
 
   //   const handleSubmit = () => {
   //     let penaltyType: "lost" | "irreparable_damage" | "damage";
@@ -76,35 +78,42 @@ export function CreatePenaltyModal({
   //     );
   //   };
 
-const handleSubmit = () => {
-  if (!fineProps?.id) {
-    toast.error("Booking ID topilmadi");
-    return;
-  }
+  const handleSubmit = () => {
+    if (!fineProps?.id) {
+      toast.error("Booking ID topilmadi");
+      return;
+    }
 
-  if (!details.trim()) {
-    toast.error("Iltimos, tafsilotni kiriting");
-    return;
-  }
+    if (!details.trim()) {
+      toast.error("Iltimos, tafsilotni kiriting");
+      return;
+    }
 
-  createPenalty.mutate({
-    type,
-    fineId: fineProps.id,
-    details, // ✅ shu majburiy
-  }, {
-    onSuccess: () => {
-      toast.success("Jarima muvaffaqiyatli yaratildi!");
-      setType("lost");
-      setDetails("");
-      onOpenChange(false);
-    },
-    onError: (err: any) => {
-      console.error(err);
-      toast.error("Jarima yaratishda xatolik yuz berdi");
-    },
-  });
-};
+    createPenalty.mutate(
+      {
+        type,
+        fineId: fineProps.id,
+        details, // ✅ shu majburiy
+      },
+      {
+        onSuccess: () => {
+          toast.success("Jarima muvaffaqiyatli yaratildi!");
+          queryClient.invalidateQueries({
+            predicate: (query) => query.queryKey[0] === "fines",
+          });
 
+          setType("lost");
+          setDetails("");
+          onOpenChange(false);
+        },
+
+        onError: (err: any) => {
+          console.error(err);
+          toast.error("Jarima yaratishda xatolik yuz berdi");
+        },
+      },
+    );
+  };
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
