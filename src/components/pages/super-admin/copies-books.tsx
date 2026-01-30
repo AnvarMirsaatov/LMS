@@ -157,6 +157,7 @@ export const CopiesBooks = () => {
       setSearchQuery(bookId);
     }
   }, [searchParams]);
+  console.log("searchField", searchField);
 
   useEffect(() => {
     const bookId = searchParams.get("bookId");
@@ -496,6 +497,7 @@ export const CopiesBooks = () => {
         return <AntInput placeholder={field.label} />;
     }
   };
+  console.log(searchField);
 
   return (
     <div>
@@ -597,7 +599,13 @@ export const CopiesBooks = () => {
                   ) : (
                     <input
                       type="text"
-                      placeholder={t("Search")}
+                      placeholder={
+                        searchField === "inventoryNumber"
+                          ? "Inventar raqamni kiriting"
+                          : searchField === "epc"
+                            ? "EPC raqamni kiriting"
+                            : "Qidirish"
+                      }
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="flex-1 bg-transparent outline-none text-gray-700 placeholder-gray-400 text-sm w-90 dark:text-white"

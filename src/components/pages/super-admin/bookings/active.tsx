@@ -674,7 +674,7 @@ export default function ActiveBookingsPage() {
                   onClick={() => setActiveTab("new-booking")}
                 >
                   <Plus className="h-4 w-4 mr-2" />
-                  {t("bron qilish")}
+                  Ijara yaratish
                 </TooltipBtn>
               </div>
             }
