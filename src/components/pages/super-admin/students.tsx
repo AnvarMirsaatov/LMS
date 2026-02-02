@@ -345,7 +345,8 @@ const Students = () => {
                     <DropdownMenuItem
                       onClick={() => {
                         router.push(
-                          `/super-admin/bookings/active?field=fullName&query=${encodeURIComponent(fullNameQuery)}`,
+                          `/super-admin/bookings/active?page=1&query=${record.name}+~${record.surname}`,
+                          //  /super-admin/bookings/active?page=1&query=%09SHAXBOZ%09%7EYULDOSHEV&field=fullName
                         );
                       }}
                     >
@@ -598,24 +599,24 @@ const Students = () => {
         {
           onSuccess: () => {
             (toast.success(t("Student created successfully")),
-            {
-              style: {
-                maxWidth: "600px",
-                width: "100%",
-              },
-            });
+              {
+                style: {
+                  maxWidth: "600px",
+                  width: "100%",
+                },
+              });
             setOpen(false);
             form.reset();
           },
           onError: (err) => {
             console.error("❌ Create error:", err);
             (toast.error(t("Error creating student")),
-            {
-              style: {
-                maxWidth: "600px",
-                width: "100%",
-              },
-            });
+              {
+                style: {
+                  maxWidth: "600px",
+                  width: "100%",
+                },
+              });
           },
         },
       );
@@ -1011,9 +1012,9 @@ const Students = () => {
               fields={
                 editingStudent
                   ? fields.filter(
-                    (f) =>
-                      !["passportSeries", "passportNumber"].includes(f.name),
-                  )
+                      (f) =>
+                        !["passportSeries", "passportNumber"].includes(f.name),
+                    )
                   : fields
               }
               loading={isSubmitting}
