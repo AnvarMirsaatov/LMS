@@ -85,7 +85,7 @@ export function CreatePenaltyModal({
     }
 
     if (!details.trim()) {
-      toast.error("Iltimos, tafsilotni kiriting");
+      toast.error("Iltimos, Jarima qiymatini kiriting");
       return;
     }
 
@@ -143,7 +143,7 @@ export function CreatePenaltyModal({
             </select>
 
             <textarea
-              placeholder="Tafsilotini kiriting"
+              placeholder="Jarima qiymatini kiriting"
               className="w-full border rounded p-2"
               value={details}
               onChange={(e) => setDetails(e.target.value)}
