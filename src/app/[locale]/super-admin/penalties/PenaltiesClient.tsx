@@ -4,11 +4,11 @@ import { useTranslations } from "next-intl";
 import { useActivePenaltyRate } from "@/hooks/useActivePenaltyRate";
 import { useFines } from "@/hooks/useFines";
 import { ActionColumns } from "@/components/pages/super-admin/penaltiesActionBtn";
-import { FilterType } from "@/components/pages/super-admin/students";
 import { Fine, FineType } from "@/types/fine";
 import { EditPenaltyRateModal } from "@/components/pages/super-admin/EditPenaltyRateModal";
 import MyTable, { IColumn } from "@/components/my-table";
-import { Button, Tag } from "antd";
+import { Tag } from "antd";
+import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import ReactPaginate from "react-paginate";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -50,20 +50,6 @@ export default function PenaltiesClient({ slug }: PenaltiesClientProps) {
   const [pageNumber, setPageNum] = useState<number>(
     Number(searchPagination.get("page")) || 1,
   );
-  // const handlePageChange = (newPage: number) => {
-  //   setPageNum(newPage);
-
-  //   const params = new URLSearchParams(window.location.search);
-  //   params.set("page", newPage.toString());
-
-  //   if (appliedQuery.query) {
-  //     params.set("query", appliedQuery.query);
-  //   } else {
-  //     params.delete("query");
-  //   }
-
-  //   router.push(`?${params.toString()}`);
-  // };
 
   const handlePageChange = (newPage: number) => {
     const params = new URLSearchParams(window.location.search);
@@ -336,47 +322,51 @@ export default function PenaltiesClient({ slug }: PenaltiesClientProps) {
                       /> */}
                   {/* )} */}
                 </div>
-                <TooltipBtn title={t("Search")} onClick={triggerSearch}>
+                <TooltipBtn
+                  title={t("Search")}
+                  onClick={triggerSearch}
+                  className="rounded-full"
+                >
                   <Search size={18} />
                 </TooltipBtn>
               </div>
             </div>
-            {/* <Tabs
-                value={filter}
-                onValueChange={(val) => {
-                  setFilter(val as any);
-                  setPageNum(1);
-                  setAppliedQuery({});
-
-                  const params = new URLSearchParams(window.location.search);
-                  params.set("page", "1");
-                  params.delete("query");
-
-                  router.push(`?${params.toString()}`);
-                }}
-              >
-                <TabsList className="flex gap-2">
-                  <TabsTrigger
-                    value="all"
-                    className="data-[state=active]:bg-green-600 px-2 py-1 rounded-lg data-[state=active]:text-white"
-                  >
-                    {t("All")}
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="resolved"
-                    className="data-[state=active]:bg-green-600 px-2 py-1 rounded-lg data-[state=active]:text-white"
-                  >
-                    To'lov qilingan
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="unresolved"
-                    className="data-[state=active]:bg-green-600 px-2 py-1 rounded-lg data-[state=active]:text-white"
-                  >
-                    To'lov qilinmagan
-                  </TabsTrigger>
-                </TabsList>
-              </Tabs> */}
             <Tabs
+              value={filter}
+              onValueChange={(val) => {
+                setFilter(val as any);
+                setPageNum(1);
+                setAppliedQuery({});
+
+                const params = new URLSearchParams(window.location.search);
+                params.set("page", "1");
+                params.delete("query");
+
+                router.push(`?${params.toString()}`);
+              }}
+            >
+              <TabsList className="flex gap-2">
+                <TabsTrigger
+                  value="all"
+                  className="data-[state=active]:bg-green-600 px-2 py-1 rounded-lg data-[state=active]:text-white"
+                >
+                  {t("All")}
+                </TabsTrigger>
+                <TabsTrigger
+                  value="resolved"
+                  className="data-[state=active]:bg-green-600 px-2 py-1 rounded-lg data-[state=active]:text-white"
+                >
+                  To'lov qilingan
+                </TabsTrigger>
+                <TabsTrigger
+                  value="unresolved"
+                  className="data-[state=active]:bg-green-600 px-2 py-1 rounded-lg data-[state=active]:text-white"
+                >
+                  To'lov qilinmagan
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+            {/* <Tabs
               value={filter}
               onValueChange={(val) => {
                 const nextFilter = val as FineTypeFilter;
@@ -408,7 +398,7 @@ export default function PenaltiesClient({ slug }: PenaltiesClientProps) {
 
                 <TabsTrigger value="IRREPARABLE_DAMAGE">Yaroqsiz</TabsTrigger>
               </TabsList>
-            </Tabs>
+            </Tabs> */}
           </div>
         }
         footer={
@@ -418,7 +408,8 @@ export default function PenaltiesClient({ slug }: PenaltiesClientProps) {
             }
           >
             <div className="font-bold text-[20px] space-y-1 flex items-center gap-5">
-              <p className="text-sm">IColumn
+              <p className="text-sm">
+                IColumn
                 {t("Total Pages")}:{" "}
                 <span className="text-green-600">{fines?.totalPages}</span>
               </p>
@@ -440,13 +431,23 @@ export default function PenaltiesClient({ slug }: PenaltiesClientProps) {
               marginPagesDisplayed={1}
               pageCount={fines?.totalPages || 0}
               previousLabel={
-                <Button className={"bg-white text-black"}>
+                <Button
+                  className={
+                    "bg-white text-black dark:bg-gray-800 dark:text-white"
+                  }
+                >
+                  {" "}
                   <ChevronLeft />
                   {t("Return")}
                 </Button>
               }
               nextLabel={
-                <Button className={"bg-white text-black"}>
+                <Button
+                  className={
+                    "bg-white text-black dark:bg-gray-800 dark:text-white"
+                  }
+                >
+                  {" "}
                   {t("Next")} <ChevronRight />
                 </Button>
               }

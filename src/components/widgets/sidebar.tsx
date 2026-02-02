@@ -550,7 +550,7 @@ const OptimizedSidebar: React.FC<OptimizedSidebarProps> = ({
               <Button
                 variant="ghost"
                 onClick={handleLogout}
-                className="w-full justify-start gap-2 h-10 px-4 py-2.5 rounded-lg text-muted-foreground hover:text-white hover:bg-green-600/95"
+                className="w-full justify-start gap-2 h-10 px-4 py-2.5 rounded-lg text-muted-foreground hover:text-white hover:bg-red-600/95"
               >
                 <LogOut className="w-5 h-5" />
                 <span>{t("logout")}</span>

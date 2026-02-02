@@ -45,6 +45,8 @@ const NotificationHeader = () => {
       const res = await api.post("/admin/notifications/read", {
         notificationId,
       });
+      console.log("Notifications", res.data);
+
       return res.data;
     },
     onSuccess: async () => {

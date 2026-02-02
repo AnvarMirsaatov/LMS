@@ -1,6 +1,13 @@
 "use client";
 
-import { PenSquareIcon, Plus, Search, Settings2 } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  PenSquareIcon,
+  Plus,
+  Search,
+  Settings2,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -23,13 +30,65 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { toast } from "sonner";
+import ReactPaginate from "react-paginate";
+import { Button } from "@/components/ui/button";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const EBookCategories = () => {
   const t = useTranslations();
-  const { data: categories, isLoading } = useCategories();
+  // const { data: categories, isLoading } = useCategories();
+
   const createCategory = useCreateCategory();
   const updateCategory = useUpdateCategory();
   const deleteCategory = useDeleteCategory();
+
+  // pagination
+  const searchPagination = useSearchParams();
+  const router = useRouter();
+
+  const [appliedQuery, setAppliedQuery] = useState<{
+    field?: string;
+    query?: string;
+  }>({});
+
+  // Hozirgi sahifa
+  const [pageNumber, setPageNum] = useState<number>(
+    Number(searchPagination.get("page")) || 1,
+  );
+
+  // Sahifa o‘lchami
+  const pageSize = useMemo(() => {
+    return appliedQuery.query ? 100 : 10;
+  }, [appliedQuery.query]);
+
+  // Sahifa o'zgarganda URL va state yangilash
+  const handlePageChange = (newPage: number) => {
+    const params = new URLSearchParams(window.location.search);
+    params.set("page", newPage.toString());
+    router.push(`?${params.toString()}`);
+  };
+
+  const triggerSearch = () => {
+    setAppliedQuery({ field: "name", query: search });
+    setPageNum(1); // yangi search bo‘lsa, sahifa 1 ga qaytadi
+
+    const params = new URLSearchParams(window.location.search);
+    params.set("page", "1");
+    if (search) params.set("query", search);
+    else params.delete("query");
+
+    router.push(`?${params.toString()}`);
+  };
+
+  const { data: categories, isLoading } = useCategories();
+
+  // const { data: categories, isLoading } = useCategories({
+  //   pageNumber,
+  //   pageSize,
+  //   ...(appliedQuery.query ? { query: appliedQuery.query } : {}),
+  // });
+  console.log("categories", categories);
+  // pagination end
 
   const [submitting, setSubmitting] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Record<
@@ -40,13 +99,19 @@ const EBookCategories = () => {
   const form = useForm();
 
   const [search, setSearch] = useState("");
+  // const filteredCategories = useMemo(() => {
+  //   if (!categories?.data) return [];
+  //   return categories.data.filter((item: any) =>
+  //     item.name.toLowerCase().includes(search.toLowerCase()),
+  //   );
+  // }, [categories, search]);
+
   const filteredCategories = useMemo(() => {
     if (!categories?.data) return [];
     return categories.data.filter((item: any) =>
       item.name.toLowerCase().includes(search.toLowerCase()),
     );
   }, [categories, search]);
-
   const fields = useMemo<FormField[]>(
     () => [
       {
@@ -187,8 +252,15 @@ const EBookCategories = () => {
                   className="border-none shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent"
                 />
               </div>
+              {/* <TooltipBtn
+                title={t("Search")}
+                className="flex-shrink-0 mr-1 p-2.5 rounded-full bg-green-600 text-white hover:bg-green-700 transition-colors"
+              >
+                <Search size={18} />
+              </TooltipBtn> */}
               <TooltipBtn
                 title={t("Search")}
+                onClick={triggerSearch} // <-- qo‘shish
                 className="flex-shrink-0 mr-1 p-2.5 rounded-full bg-green-600 text-white hover:bg-green-700 transition-colors"
               >
                 <Search size={18} />
@@ -208,6 +280,68 @@ const EBookCategories = () => {
               <Plus />
               {t("Add Category")}
             </TooltipBtn>
+          </div>
+        }
+        footer={
+          <div
+            className={
+              "flex flex-col lg:flex-row justify-between items-center gap-2"
+            }
+          >
+            <div className="font-bold text-[20px] space-y-1 flex items-center gap-5">
+              <p className="text-sm">
+                IColumn
+                {t("Total Pages")}:{" "}
+                <span className="text-green-600">{categories?.totalPages}</span>
+              </p>
+              <p className="text-sm">
+                {t("Current Page")}:{" "}
+                <span className="text-green-600">
+                  {categories?.currentPage}
+                </span>
+              </p>
+              <p className="text-sm">
+                {t("Total Elements")}:{" "}
+                <span className="text-green-600">
+                  {categories?.totalElements}
+                </span>
+              </p>
+            </div>
+
+            <ReactPaginate
+              breakLabel="..."
+              onPageChange={(e) => handlePageChange(e.selected + 1)}
+              forcePage={pageNumber - 1}
+              pageRangeDisplayed={3}
+              marginPagesDisplayed={1}
+              pageCount={categories?.totalPages || 0}
+              previousLabel={
+                <Button
+                  className={
+                    "bg-white text-black dark:bg-gray-800 dark:text-white"
+                  }
+                >
+                  {" "}
+                  <ChevronLeft />
+                  {t("Return")}
+                </Button>
+              }
+              nextLabel={
+                <Button
+                  className={
+                    "bg-white text-black dark:bg-gray-800 dark:text-white"
+                  }
+                >
+                  {" "}
+                  {t("Next")} <ChevronRight />
+                </Button>
+              }
+              className={"flex justify-center gap-2 items-center my-5"}
+              renderOnZeroPageCount={null}
+              pageClassName="list-none"
+              pageLinkClassName="px-3 py-1 rounded-full border cursor-pointer block"
+              activeLinkClassName="bg-green-600 text-white rounded-full"
+            />
           </div>
         }
       />
