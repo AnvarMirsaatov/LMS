@@ -490,7 +490,18 @@ export default function HistoryPage() {
                 <span className="font-medium text-muted-foreground">
                   {t("Fakultet")}:
                 </span>
-                <span>{selectedDetail.student.faculty}</span>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="max-w-[70%] truncate cursor-pointer">
+                        {selectedDetail.student.faculty.substring(0, 10)}
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-sm whitespace-pre-wrap">
+                      {selectedDetail.student.faculty}
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
               <div className="flex justify-between">
                 <span className="font-medium text-muted-foreground">
@@ -510,15 +521,37 @@ export default function HistoryPage() {
               {/* Book Info */}
               <div className="flex justify-between">
                 <span className="font-medium text-muted-foreground">
-                  {t("Kitob sarlavhasi")}:
+                  Kitob sarlavhasi
                 </span>
-                <span>{selectedDetail.book.title}</span>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="max-w-[70%] truncate cursor-pointer">
+                        {selectedDetail.book.title.substring(0, 10)}
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-sm whitespace-pre-wrap">
+                      {selectedDetail.book.title}
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
               <div className="flex justify-between">
                 <span className="font-medium text-muted-foreground">
                   {t("Muallif")}:
                 </span>
-                <span>{selectedDetail.book.author}</span>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="max-w-[70%] truncate cursor-pointer">
+                        {selectedDetail.book.author.substring(0, 10)}
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-sm whitespace-pre-wrap">
+                      {selectedDetail.book.author}
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
               <div className="flex justify-between">
                 <span className="font-medium text-muted-foreground">

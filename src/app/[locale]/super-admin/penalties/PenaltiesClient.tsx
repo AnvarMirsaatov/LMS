@@ -418,7 +418,7 @@ export default function PenaltiesClient({ slug }: PenaltiesClientProps) {
             }
           >
             <div className="font-bold text-[20px] space-y-1 flex items-center gap-5">
-              <p className="text-sm">
+              <p className="text-sm">IColumn
                 {t("Total Pages")}:{" "}
                 <span className="text-green-600">{fines?.totalPages}</span>
               </p>

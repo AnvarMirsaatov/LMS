@@ -148,6 +148,7 @@ export const CopiesBooks = () => {
     sortDirection,
     filter,
   });
+  console.log("searchQuery", copiesBooks);
 
   useEffect(() => {
     const bookId = searchParams.get("bookId");
@@ -156,6 +157,7 @@ export const CopiesBooks = () => {
       setSearchQuery(bookId);
     }
   }, [searchParams]);
+  console.log("searchField", searchField);
 
   useEffect(() => {
     const bookId = searchParams.get("bookId");
@@ -173,27 +175,6 @@ export const CopiesBooks = () => {
       router.replace(`${pathname}?${params.toString()}`);
     }
   }, [searchQuery, searchParams, pathname, router]);
-
-  // --- buildSearchParams ga yuborish uchun
-  // useEffect(() => {
-  //   if (searchField === "fullInfo" || searchField === "fullName") {
-  //     if (firstQuery || secondQuery) {
-  //       setDebouncedSearchQuery(
-  //         `${firstQuery}${secondQuery ? `~${secondQuery}` : ""}`,
-  //       );
-  //     } else {
-  //       setDebouncedSearchQuery("");
-  //     }
-  //   } else {
-  //     const timer = setTimeout(() => {
-  //       setDebouncedSearchQuery(searchQuery);
-  //       if (searchQuery !== debouncedSearchQuery) {
-  //         setPageNum(1);
-  //       }
-  //     }, 500);
-  //     return () => clearTimeout(timer);
-  //   }
-  // }, [searchQuery, firstQuery, secondQuery, searchField]);
 
   const columns = useMemo<IColumn[]>(
     () => [
@@ -277,9 +258,9 @@ export const CopiesBooks = () => {
         title: t("status"),
         key: "isTaken",
         dataIndex: "isTaken",
-        render: (value: boolean) => (
+        render: (_: any, record: any) => (
           <div className="flex items-center justify-start">
-         <p>anvar</p>
+            <p>{record.status}</p>
           </div>
         ),
       },
@@ -418,14 +399,6 @@ export const CopiesBooks = () => {
     router.push(`?${params.toString()}`);
   }, [pageNum]);
 
-  // const searchFieldOptions = [
-  //   { value: "inventoryNumber", label: t("Inventory Number") },
-  //   { value: "book", label: t("Book") },
-  //   { value: "fullInfo", label: t("Full Info") },
-  //   { value: "epc", label: t("epc") },
-  //   { value: "fullName", label: t("Full name") },
-  // ];
-
   const [submitting, setSubmitting] = useState(false);
 
   const onSubmit = async (data: any) => {
@@ -524,6 +497,7 @@ export const CopiesBooks = () => {
         return <AntInput placeholder={field.label} />;
     }
   };
+  console.log(searchField);
 
   return (
     <div>
@@ -544,7 +518,7 @@ export const CopiesBooks = () => {
                   <DropdownMenuTrigger asChild>
                     <TooltipBtn
                       className="flex-shrink-0 mr-1 p-2.5 rounded-full transition-colors"
-                      title={t("Filter")}
+                      title="Filter"
                     >
                       <Settings2 size={18} />
                     </TooltipBtn>
@@ -625,7 +599,13 @@ export const CopiesBooks = () => {
                   ) : (
                     <input
                       type="text"
-                      placeholder={t("Search")}
+                      placeholder={
+                        searchField === "inventoryNumber"
+                          ? "Inventar raqamni kiriting"
+                          : searchField === "epc"
+                            ? "EPC raqamni kiriting"
+                            : "Qidirish"
+                      }
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="flex-1 bg-transparent outline-none text-gray-700 placeholder-gray-400 text-sm w-90 dark:text-white"

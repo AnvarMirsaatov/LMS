@@ -104,9 +104,7 @@ const Students = () => {
       : searchValue
         ? { field: searchField, query: searchValue }
         : {}),
-
   });
-
 
   useEffect(() => {
     setPageNumber(1);
@@ -245,6 +243,7 @@ const Students = () => {
     },
     enabled: !!editingStudent,
   });
+  console.log();
 
   const columns = useMemo<IColumn[]>(
     () => [
@@ -352,58 +351,61 @@ const Students = () => {
                     >
                       {t("Active bronlar")}
                     </DropdownMenuItem>
-                  )
-                    : (
-                      <DropdownMenuItem
-                        disabled
-                      >
-                        {t("Active bronlar")}
-                      </DropdownMenuItem>
-                    )}
-
-                  {
-                    record.hasHistory ? (
-                      <DropdownMenuItem
-                        onClick={() => {
-                          router.push(
-                            `/super-admin/users/students/${record.id}?type=archive`,
-                          );
-                        }}
-                      >
-                        {t("Archive bronlar")}
-                      </DropdownMenuItem>
-                    )
-                      :
-                      (
-                        <DropdownMenuItem
-                          disabled
-                        >
-                          {t("Archive bronlar")}
-                        </DropdownMenuItem>
-                      )
-                  }
-
+                  ) : (
+                    <DropdownMenuItem disabled>
+                      {t("Active bronlar")}
+                    </DropdownMenuItem>
+                  )}
+                  {record.hasHistory ? (
+                    <DropdownMenuItem
+                      onClick={() => {
+                        router.push(
+                          `/super-admin/users/students/${record.id}?type=archive`,
+                        );
+                      }}
+                    >
+                      {t("Archive bronlar")}
+                    </DropdownMenuItem>
+                  ) : (
+                    <DropdownMenuItem disabled>
+                      {t("Archive bronlar")}
+                    </DropdownMenuItem>
+                  )}
                   {role === "admin" && record.hasFines ? (
                     <DropdownMenuItem
                       onClick={() => {
                         const fullNameQuery = `${record.name}~${record.surname}`;
                         router.push(
-                          `/super-admin/penalties?field=fullName&query=${encodeURIComponent(fullNameQuery)}`
+                          `/super-admin/penalties?field=fullName&query=${encodeURIComponent(fullNameQuery)}`,
                         );
                       }}
                     >
                       Jarimalar
                     </DropdownMenuItem>
-                  )
-                    :
-                    (
-                      <DropdownMenuItem
-                        disabled>
-                        Jarimalar
-                      </DropdownMenuItem>
-                    )
-                  }
-
+                  ) : (
+                    <DropdownMenuItem disabled>Jarimalar </DropdownMenuItem>
+                  )}
+                  {role === "super-admin" && record.status ? (
+                    <DropdownMenuItem
+                      onClick={async () => {
+                        try {
+                          await api.patch(
+                            `/admin/students/${record.id}/bot/deactivate`,
+                          );
+                          toast.success("Talaba botdan faolsizlantirildi");
+                        } catch (error) {
+                          console.error(error);
+                          toast.error("Xatolik yuz berdi");
+                        }
+                      }}
+                    >
+                      Botdan faolsizlantirish
+                    </DropdownMenuItem>
+                  ) : (
+                    <DropdownMenuItem disabled>
+                      Botdan faolsizlantirish
+                    </DropdownMenuItem>
+                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
             )}
@@ -417,7 +419,11 @@ const Students = () => {
                 <DropdownMenuContent>
                   <DropdownMenuItem
                     onClick={() => {
-                      router.push(`/admin/users/${record.id}?type=active`);
+                      console.log("record", record);
+
+                      return router.push(
+                        `/admin/users/${record.id}?type=active`,
+                      );
                     }}
                   >
                     {t("Active bronlar")}
@@ -592,24 +598,24 @@ const Students = () => {
         {
           onSuccess: () => {
             (toast.success(t("Student created successfully")),
-            {
-              style: {
-                maxWidth: "600px",
-                width: "100%",
-              },
-            });
+              {
+                style: {
+                  maxWidth: "600px",
+                  width: "100%",
+                },
+              });
             setOpen(false);
             form.reset();
           },
           onError: (err) => {
             console.error("❌ Create error:", err);
             (toast.error(t("Error creating student")),
-            {
-              style: {
-                maxWidth: "600px",
-                width: "100%",
-              },
-            });
+              {
+                style: {
+                  maxWidth: "600px",
+                  width: "100%",
+                },
+              });
           },
         },
       );
@@ -628,6 +634,7 @@ const Students = () => {
     editingStudentData.isLoading,
     form,
   ]);
+  console.log(students);
 
   return (
     <TooltipProvider>
@@ -1004,9 +1011,9 @@ const Students = () => {
               fields={
                 editingStudent
                   ? fields.filter(
-                    (f) =>
-                      !["passportSeries", "passportNumber"].includes(f.name),
-                  )
+                      (f) =>
+                        !["passportSeries", "passportNumber"].includes(f.name),
+                    )
                   : fields
               }
               loading={isSubmitting}

@@ -652,202 +652,202 @@ const MyTable = ({
                 bordered && "border",
               )}
             >
-                {showHeader && (
-                  <TableHeader
-                    className={sticky ? "sticky top-0 z-10 bg-background" : ""}
-                  >
-                    <TableRow>
-                      {/* Selection column */}
-                      {hasSelection && (
-                        <TableHead className="w-12">
-                          {rowSelection?.type !== "radio" && (
-                            <Checkbox
-                              checked={isAllSelected}
-                              onCheckedChange={handleSelectAll}
-                              aria-label="Select all"
-                              data-state={
-                                isIndeterminate
-                                  ? "indeterminate"
-                                  : isAllSelected
-                                    ? "checked"
-                                    : "unchecked"
-                              }
-                            />
-                          )}
-                        </TableHead>
-                      )}
-
-                      {/* Expand column */}
-                      {expandable && <TableHead className="w-12"></TableHead>}
-
-                      {/* Data columns */}
-                      {visibleColumns.map((col, idx) => {
-                        const columnKey = col.key ?? col.dataIndex ?? idx;
-                        const isSorted = sortConfig?.key === columnKey;
-                        const isPinnedLeft =
-                          pinnable &&
-                          pinnedColumns.left.includes(columnKey as string);
-                        const isPinnedRight =
-                          pinnable &&
-                          pinnedColumns.right.includes(columnKey as string);
-
-                        return (
-                          <TableHead
-                            key={columnKey as React.Key}
-                            style={{
-                              width: col.width,
-                              textAlign: col.align,
-                              position:
-                                isPinnedLeft || isPinnedRight
-                                  ? "sticky"
-                                  : undefined,
-                              left: isPinnedLeft ? 0 : undefined,
-                              right: isPinnedRight ? 0 : undefined,
-                              zIndex:
-                                isPinnedLeft || isPinnedRight ? 50 : undefined,
-                            }}
-                            className={cn(
-                              isPinnedLeft || isPinnedRight
-                                ? "bg-background border-r"
-                                : "",
-                              col.resizable ? "resize-x overflow-hidden" : "",
-                              col.sorter
-                                ? "cursor-pointer hover:bg-muted/50"
-                                : "",
-                            )}
-                            onClick={() =>
-                              col.sorter && handleSort(columnKey as string)
+              {showHeader && (
+                <TableHeader
+                  className={sticky ? "sticky top-0 z-10 bg-background" : ""}
+                >
+                  <TableRow>
+                    {/* Selection column */}
+                    {hasSelection && (
+                      <TableHead className="w-12">
+                        {rowSelection?.type !== "radio" && (
+                          <Checkbox
+                            checked={isAllSelected}
+                            onCheckedChange={handleSelectAll}
+                            aria-label="Select all"
+                            data-state={
+                              isIndeterminate
+                                ? "indeterminate"
+                                : isAllSelected
+                                  ? "checked"
+                                  : "unchecked"
                             }
-                          >
-                            <div className="flex gap-2 items-center">
-                              {col.icon && (
-                                <span className="text-muted-foreground">
-                                  {col.icon}
-                                </span>
-                              )}
-                              <span className={col.ellipsis ? "truncate" : ""}>
-                                {typeof col.title === "function"
-                                  ? col.title()
-                                  : col.title}
+                          />
+                        )}
+                      </TableHead>
+                    )}
+
+                    {/* Expand column */}
+                    {expandable && <TableHead className="w-12"></TableHead>}
+
+                    {/* Data columns */}
+                    {visibleColumns.map((col, idx) => {
+                      const columnKey = col.key ?? col.dataIndex ?? idx;
+                      const isSorted = sortConfig?.key === columnKey;
+                      const isPinnedLeft =
+                        pinnable &&
+                        pinnedColumns.left.includes(columnKey as string);
+                      const isPinnedRight =
+                        pinnable &&
+                        pinnedColumns.right.includes(columnKey as string);
+
+                      return (
+                        <TableHead
+                          key={columnKey as React.Key}
+                          style={{
+                            width: col.width,
+                            textAlign: col.align,
+                            position:
+                              isPinnedLeft || isPinnedRight
+                                ? "sticky"
+                                : undefined,
+                            left: isPinnedLeft ? 0 : undefined,
+                            right: isPinnedRight ? 0 : undefined,
+                            zIndex:
+                              isPinnedLeft || isPinnedRight ? 50 : undefined,
+                          }}
+                          className={cn(
+                            isPinnedLeft || isPinnedRight
+                              ? "bg-background border-r"
+                              : "",
+                            col.resizable ? "resize-x overflow-hidden" : "",
+                            col.sorter
+                              ? "cursor-pointer hover:bg-muted/50"
+                              : "",
+                          )}
+                          onClick={() =>
+                            col.sorter && handleSort(columnKey as string)
+                          }
+                        >
+                          <div className="flex gap-2 items-center">
+                            {col.icon && (
+                              <span className="text-muted-foreground">
+                                {col.icon}
                               </span>
+                            )}
+                            <span className={col.ellipsis ? "truncate" : ""}>
+                              {typeof col.title === "function"
+                                ? col.title()
+                                : col.title}
+                            </span>
 
-                              {/* Sort indicator */}
-                              {col.sorter && isSorted && (
-                                <div className="ml-auto">
-                                  {sortConfig?.direction === "asc" ? (
-                                    <TrendingUp className="w-3 h-3" />
-                                  ) : (
-                                    <Target className="w-3 h-3 rotate-180" />
+                            {/* Sort indicator */}
+                            {col.sorter && isSorted && (
+                              <div className="ml-auto">
+                                {sortConfig?.direction === "asc" ? (
+                                  <TrendingUp className="w-3 h-3" />
+                                ) : (
+                                  <Target className="w-3 h-3 rotate-180" />
+                                )}
+                              </div>
+                            )}
+
+                            {/* Filter button */}
+                            {col.filters && (
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="p-0 w-4 h-4"
+                                  >
+                                    <Filter
+                                      className={cn(
+                                        "h-3 w-3",
+                                        filters[columnKey as string]?.length
+                                          ? "text-primary"
+                                          : "opacity-50",
+                                      )}
+                                    />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent>
+                                  {col.filters.map((filter) => (
+                                    <DropdownMenuCheckboxItem
+                                      key={filter.value}
+                                      checked={filters[
+                                        columnKey as string
+                                      ]?.includes(filter.value)}
+                                      onCheckedChange={(checked) => {
+                                        const currentFilters =
+                                          filters[columnKey as string] || [];
+                                        const newFilters = checked
+                                          ? [...currentFilters, filter.value]
+                                          : currentFilters.filter(
+                                              (v) => v !== filter.value,
+                                            );
+                                        handleFilter(
+                                          columnKey as string,
+                                          newFilters,
+                                        );
+                                      }}
+                                    >
+                                      {filter.text}
+                                    </DropdownMenuCheckboxItem>
+                                  ))}
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            )}
+
+                            {/* Pin button */}
+                            {pinnable && (
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="p-0 w-4 h-4"
+                                  >
+                                    <Pin className="w-3 h-3 opacity-50 hover:opacity-100" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent>
+                                  <DropdownMenuItem
+                                    onClick={() =>
+                                      handleColumnPin(
+                                        columnKey as string,
+                                        "left",
+                                      )
+                                    }
+                                  >
+                                    Pin left
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={() =>
+                                      handleColumnPin(
+                                        columnKey as string,
+                                        "right",
+                                      )
+                                    }
+                                  >
+                                    Pin right
+                                  </DropdownMenuItem>
+                                  {(isPinnedLeft || isPinnedRight) && (
+                                    <DropdownMenuItem
+                                      onClick={() =>
+                                        setPinnedColumns((prev) => ({
+                                          left: prev.left.filter(
+                                            (k) => k !== columnKey,
+                                          ),
+                                          right: prev.right.filter(
+                                            (k) => k !== columnKey,
+                                          ),
+                                        }))
+                                      }
+                                    >
+                                      Unpin
+                                    </DropdownMenuItem>
                                   )}
-                                </div>
-                              )}
-
-                              {/* Filter button */}
-                              {col.filters && (
-                                <DropdownMenu>
-                                  <DropdownMenuTrigger asChild>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="p-0 w-4 h-4"
-                                    >
-                                      <Filter
-                                        className={cn(
-                                          "h-3 w-3",
-                                          filters[columnKey as string]?.length
-                                            ? "text-primary"
-                                            : "opacity-50",
-                                        )}
-                                      />
-                                    </Button>
-                                  </DropdownMenuTrigger>
-                                  <DropdownMenuContent>
-                                    {col.filters.map((filter) => (
-                                      <DropdownMenuCheckboxItem
-                                        key={filter.value}
-                                        checked={filters[
-                                          columnKey as string
-                                        ]?.includes(filter.value)}
-                                        onCheckedChange={(checked) => {
-                                          const currentFilters =
-                                            filters[columnKey as string] || [];
-                                          const newFilters = checked
-                                            ? [...currentFilters, filter.value]
-                                            : currentFilters.filter(
-                                                (v) => v !== filter.value,
-                                              );
-                                          handleFilter(
-                                            columnKey as string,
-                                            newFilters,
-                                          );
-                                        }}
-                                      >
-                                        {filter.text}
-                                      </DropdownMenuCheckboxItem>
-                                    ))}
-                                  </DropdownMenuContent>
-                                </DropdownMenu>
-                              )}
-
-                              {/* Pin button */}
-                              {pinnable && (
-                                <DropdownMenu>
-                                  <DropdownMenuTrigger asChild>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="p-0 w-4 h-4"
-                                    >
-                                      <Pin className="w-3 h-3 opacity-50 hover:opacity-100" />
-                                    </Button>
-                                  </DropdownMenuTrigger>
-                                  <DropdownMenuContent>
-                                    <DropdownMenuItem
-                                      onClick={() =>
-                                        handleColumnPin(
-                                          columnKey as string,
-                                          "left",
-                                        )
-                                      }
-                                    >
-                                      Pin left
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem
-                                      onClick={() =>
-                                        handleColumnPin(
-                                          columnKey as string,
-                                          "right",
-                                        )
-                                      }
-                                    >
-                                      Pin right
-                                    </DropdownMenuItem>
-                                    {(isPinnedLeft || isPinnedRight) && (
-                                      <DropdownMenuItem
-                                        onClick={() =>
-                                          setPinnedColumns((prev) => ({
-                                            left: prev.left.filter(
-                                              (k) => k !== columnKey,
-                                            ),
-                                            right: prev.right.filter(
-                                              (k) => k !== columnKey,
-                                            ),
-                                          }))
-                                        }
-                                      >
-                                        Unpin
-                                      </DropdownMenuItem>
-                                    )}
-                                  </DropdownMenuContent>
-                                </DropdownMenu>
-                              )}
-                            </div>
-                          </TableHead>
-                        );
-                      })}
-                    </TableRow>
-                  </TableHeader>
-                )}
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            )}
+                          </div>
+                        </TableHead>
+                      );
+                    })}
+                  </TableRow>
+                </TableHeader>
+              )}
 
               <TableBody className={bodyClassName}>
                 {isLoading ? (
