@@ -63,7 +63,7 @@ export function ActionColumns({ fine, onSuccess }: ActionColumnsProps) {
                 setViewingPayment(fine);
               }}
             >
-              To'lov qilindi
+              Jarimani yopish
             </DropdownMenuItem>
 
             {/* {fine.type === FineType.OVERDUE && (
