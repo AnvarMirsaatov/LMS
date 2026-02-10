@@ -6,7 +6,6 @@ import {
   PenSquareIcon,
   Plus,
   Search,
-  Settings2,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
@@ -217,7 +216,6 @@ const EBookCategories = () => {
       );
     }
   };
-
   return (
     <div>
       <MyTable
@@ -290,7 +288,6 @@ const EBookCategories = () => {
           >
             <div className="font-bold text-[20px] space-y-1 flex items-center gap-5">
               <p className="text-sm">
-                IColumn
                 {t("Total Pages")}:{" "}
                 <span className="text-green-600">{categories?.totalPages}</span>
               </p>
